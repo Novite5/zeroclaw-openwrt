@@ -192,7 +192,7 @@ jobs:
 
 int main() {
     printf("Zeroclaw Application for OpenWrt\n");
-    printf("Built for version: ${{ env.OPENWRT_VERSION }}\n");
+    printf("Built using OpenWrt SDK\n");
     return 0;
 }
 EOF

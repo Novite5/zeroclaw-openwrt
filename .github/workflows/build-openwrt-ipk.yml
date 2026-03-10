@@ -1,4 +1,4 @@
-name: Build OpenWrt IPK
+name: Build OpenWrt IPK (sh compatible)
 
 on:
   push:
@@ -55,11 +55,10 @@ jobs:
           wget \
           curl \
           zstd \
-          file  # 用于检查文件类型
+          file
 
-    - name: Clean up previous runs
+    - name: Clean up
       run: |
-        # 清理可能存在的 openwrt 文件/目录
         rm -rf openwrt openwrt-sdk-* *.tar.xz *.tar.zst
 
     - name: Download OpenWrt SDK
@@ -68,7 +67,7 @@ jobs:
         VERSION="${{ env.VERSION }}"
         echo "Downloading SDK for version: $VERSION"
         
-        # 根据版本确定文件名
+        # 使用 case 语句（sh 兼容）
         case "$VERSION" in
           "23.05.3")
             FILE="openwrt-sdk-23.05.3-rockchip-armv8_gcc-12.3.0_musl.Linux-x86_64.tar.xz"
@@ -79,24 +78,23 @@ jobs:
           "25.12.0")
             FILE="openwrt-sdk-25.12.0-rockchip-armv8_gcc-14.3.0_musl.Linux-x86_64.tar.zst"
             ;;
+          *)
+            echo "Unsupported version: $VERSION"
+            exit 1
+            ;;
         esac
         
         URL="https://downloads.openwrt.org/releases/$VERSION/targets/rockchip/armv8/$FILE"
         echo "Download URL: $URL"
         
-        # 下载文件，显示进度
         wget --progress=dot:giga "$URL" -O "$FILE"
         
         if [ ! -f "$FILE" ]; then
-          echo "❌ Download failed"
+          echo "Download failed"
           exit 1
         fi
         
-        echo "✅ Download successful"
-        echo "File size: $(du -h "$FILE" | cut -f1)"
-        echo "File type: $(file "$FILE")"
-        
-        # 保存文件名供后续步骤使用
+        echo "Download successful"
         echo "SDK_FILE=$FILE" >> $GITHUB_OUTPUT
 
     - name: Extract SDK
@@ -105,149 +103,88 @@ jobs:
         FILE="${{ steps.download.outputs.SDK_FILE }}"
         echo "Extracting $FILE..."
         
-        # 检查文件是否存在且可读
         if [ ! -f "$FILE" ]; then
-          echo "❌ File not found: $FILE"
+          echo "File not found: $FILE"
           exit 1
         fi
         
-        # 检查文件类型
-        echo "File type: $(file "$FILE")"
-        
-        # 解压文件
-        if [[ "$FILE" == *.tar.xz ]]; then
-          echo "Extracting .tar.xz file..."
-          tar -xvf "$FILE" 2>&1 | head -20
-        elif [[ "$FILE" == *.tar.zst ]]; then
-          echo "Extracting .tar.zst file..."
-          tar --zstd -xvf "$FILE" 2>&1 | head -20
-        else
-          echo "❌ Unknown file format: $FILE"
-          exit 1
-        fi
+        # 使用 case 语句判断文件类型（sh 兼容）
+        case "$FILE" in
+          *.tar.xz)
+            echo "Extracting .tar.xz file..."
+            tar -xvf "$FILE"
+            ;;
+          *.tar.zst)
+            echo "Extracting .tar.zst file..."
+            tar --zstd -xvf "$FILE"
+            ;;
+          *)
+            echo "Unknown file format: $FILE"
+            exit 1
+            ;;
+        esac
         
         # 查找解压后的目录
         SDK_DIR=$(find . -maxdepth 1 -type d -name "openwrt-sdk-*" | head -1)
         if [ -z "$SDK_DIR" ]; then
-          echo "❌ Could not find extracted SDK directory"
-          echo "Current directory contents:"
+          echo "Could not find extracted SDK directory"
           ls -la
           exit 1
         fi
         
-        echo "✅ Extracted to: $SDK_DIR"
-        echo "Directory contents:"
-        ls -la "$SDK_DIR/" | head -10
+        echo "Extracted to: $SDK_DIR"
         
-        # 重命名为 openwrt（先删除可能存在的文件）
+        # 重命名为 openwrt
         rm -rf openwrt
         mv "$SDK_DIR" openwrt
         
-        echo "✅ Renamed to: openwrt"
-        echo "openwrt directory exists: $(ls -d openwrt 2>/dev/null && echo 'yes' || echo 'no')"
-
-    - name: Verify SDK structure
-      run: |
-        echo "Verifying SDK structure..."
-        
-        if [ ! -d "openwrt" ]; then
-          echo "❌ openwrt directory not found"
-          exit 1
-        fi
-        
-        echo "✅ openwrt is a directory"
-        echo "openwrt contents:"
-        ls -la openwrt/
-        
-        # 检查关键文件
-        for file in rules.mk package/Makefile; do
-          if [ -f "openwrt/$file" ]; then
-            echo "✅ Found: $file"
-          else
-            echo "⚠️  Missing: $file"
-          fi
-        done
+        echo "Renamed to: openwrt"
 
     - name: Copy Makefile
       run: |
-        echo "Copying Makefile..."
-        
-        # 确保目录存在
         mkdir -p openwrt/package/$PACKAGE_NAME
         
         if [ -f "zeroclaw-openwrt/Makefile" ]; then
           cp zeroclaw-openwrt/Makefile openwrt/package/$PACKAGE_NAME/
-          echo "✅ Makefile copied"
-          
-          # 验证复制成功
-          if [ -f "openwrt/package/$PACKAGE_NAME/Makefile" ]; then
-            echo "✅ Makefile exists in package directory"
-          else
-            echo "❌ Makefile not found in package directory"
-            exit 1
-          fi
+          echo "Makefile copied"
         else
-          echo "❌ Makefile not found at zeroclaw-openwrt/Makefile"
+          echo "Makefile not found"
           exit 1
         fi
 
     - name: Setup OpenWrt
       run: |
         cd openwrt
-        echo "Setting up OpenWrt..."
         
-        # 更新 feeds
         ./scripts/feeds update -a
         ./scripts/feeds install -a
         
-        # 配置
         echo "CONFIG_TARGET_rockchip=y" > .config
         echo "CONFIG_TARGET_rockchip_armv8=y" >> .config
         echo "CONFIG_PACKAGE_zeroclaw=m" >> .config
         
         make defconfig
-        echo "✅ Configuration complete"
 
     - name: Download sources
       run: |
         cd openwrt
-        echo "Downloading sources..."
-        make download V=s 2>&1 | tail -20
-        echo "✅ Sources downloaded"
+        make download
 
     - name: Build package
       run: |
         cd openwrt
-        echo "Building package..."
-        
-        # 构建包，显示详细输出
-        make package/$PACKAGE_NAME/compile V=s 2>&1 | tee build.log
-        
-        if [ ${PIPESTATUS[0]} -eq 0 ]; then
-          echo "✅ Build successful"
-        else
-          echo "❌ Build failed"
-          echo "Last 50 lines of build.log:"
-          tail -50 build.log
-          exit 1
-        fi
+        make package/$PACKAGE_NAME/compile V=s
 
     - name: Find IPK file
       run: |
         cd openwrt
-        echo "Searching for IPK file..."
-        
-        # 查找 IPK 文件
         IPK_FILE=$(find bin -name "*${PACKAGE_NAME}*.ipk" -type f | head -1)
         
         if [ -f "$IPK_FILE" ]; then
           echo "IPK_FILE=$IPK_FILE" >> $GITHUB_ENV
-          echo "✅ Found IPK: $IPK_FILE"
-          echo "File size: $(du -h "$IPK_FILE" | cut -f1)"
+          echo "Found IPK: $IPK_FILE"
         else
-          echo "❌ IPK not found"
-          echo "Searching in bin directory:"
-          find bin -name "*.ipk" -type f 2>/dev/null | head -10
+          echo "IPK not found"
           exit 1
         fi
 

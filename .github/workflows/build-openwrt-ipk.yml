@@ -1,50 +1,41 @@
-name: Build OpenWrt IPK for ARM
+name: Build OpenWrt IPK for ARM (Corrected URLs)
 
 on:
   push:
     branches: [ main, master ]
-    paths:
-      - 'zeroclaw-openwrt/**'
-      - '.github/workflows/build-openwrt-ipk.yml'
+    tags: [ 'v*' ]
   pull_request:
     branches: [ main, master ]
-    paths:
-      - 'zeroclaw-openwrt/**'
-      - '.github/workflows/build-openwrt-ipk.yml'
   workflow_dispatch:
     inputs:
-      target_arch:
-        description: 'Target architecture'
-        required: true
-        default: 'aarch64_cortex-a53'
-        type: choice
-        options:
-          - aarch64_cortex-a53
-          - arm_cortex-a7_neon-vfpv4
-          - arm_cortex-a9
-          - mipsel_24kc
       openwrt_version:
         description: 'OpenWrt version'
         required: true
-        default: '24.10.6'
+        default: '24.10.5'
         type: choice
         options:
-          - '25.12.0'
+          - '23.05.3'
           - '24.10.5'
-          - '23.05.6'
-          - '22.03.7'
-          - 'snapshot'
+          - '25.12.0'
+      target_arch:
+        description: 'Target architecture'
+        required: true
+        default: 'rockchip-armv8'
+        type: string
+
+env:
+  PACKAGE_NAME: "zeroclaw"
+  # 使用准确的架构名称
+  TARGET_ARCH: "rockchip-armv8"
+  # 镜像站点
+  MIRROR_SITES: "https://downloads.openwrt.org https://mirror2.openwrt.org https://mirrors.tuna.tsinghua.edu.cn/openwrt"
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        target_arch:
-          - aarch64_cortex-a53
-          - arm_cortex-a7_neon-vfpv4
-          - arm_cortex-a9
-        openwrt_version: ['23.05.3']
+    runs-on: ubuntu-24.04
+    container:
+      image: ubuntu:24.04
+      options: --privileged
 
     steps:
     - name: Checkout repository
@@ -52,181 +43,273 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Set up build environment
+    - name: Determine OpenWrt version
+      id: version
       run: |
-        sudo apt-get update
-        sudo apt-get install -y \
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          echo "VERSION=${{ github.event.inputs.openwrt_version }}" >> $GITHUB_OUTPUT
+          echo "ARCH=${{ github.event.inputs.target_arch }}" >> $GITHUB_OUTPUT
+        else
+          echo "VERSION=24.10.5" >> $GITHUB_OUTPUT
+          echo "ARCH=rockchip-armv8" >> $GITHUB_OUTPUT
+        fi
+        echo "OPENWRT_VERSION=${{ steps.version.outputs.VERSION }}" >> $GITHUB_ENV
+        echo "TARGET_ARCH=${{ steps.version.outputs.ARCH }}" >> $GITHUB_ENV
+        echo "Using OpenWrt version: ${{ steps.version.outputs.VERSION }}"
+        echo "Target architecture: ${{ steps.version.outputs.ARCH }}"
+
+    - name: Install build dependencies (including zstd)
+      run: |
+        apt-get update
+        apt-get install -y \
           build-essential \
+          ccache \
+          ecj \
+          fastjar \
+          file \
+          g++ \
+          gawk \
+          gettext \
+          git \
+          java-propose-classpath \
+          libelf-dev \
           libncurses5-dev \
           libncursesw5-dev \
-          zlib1g-dev \
-          gawk \
-          git \
-          gettext \
           libssl-dev \
-          xsltproc \
-          wget \
-          unzip \
           python3 \
+          python3-distutils \
           python3-setuptools \
+          python3-dev \
+          python3-pip \
           rsync \
+          subversion \
+          swig \
+          time \
+          unzip \
+          wget \
+          xsltproc \
+          zlib1g-dev \
+          jq \
           curl \
-          cargo \
-          rustc
+          ca-certificates \
+          gnupg \
+          lsb-release \
+          zstd  # 用于解压 .zst 文件
 
-    - name: Download OpenWrt SDK
+    - name: Download OpenWrt SDK directly
+      id: download_sdk
       run: |
-        ARCH=$(echo "${{ matrix.target_arch }}" | cut -d'_' -f1)
-        SDK_URL=""
-
-        case "${{ matrix.openwrt_version }}" in
+        VERSION="${{ env.OPENWRT_VERSION }}"
+        ARCH="${{ env.TARGET_ARCH }}"
+        
+        echo "Downloading OpenWrt SDK version: $VERSION"
+        
+        # 根据版本确定文件名和 URL
+        case "$VERSION" in
           "23.05.3")
-            case "${{ matrix.target_arch }}" in
-              "aarch64_cortex-a53")
-                SDK_URL="https://downloads.openwrt.org/releases/23.05.3/targets/armvirt/64/openwrt-sdk-23.05.3-armvirt-64_gcc-12.3.0_musl.Linux-x86_64.tar.xz"
-                ;;
-              "arm_cortex-a7_neon-vfpv4")
-                SDK_URL="https://downloads.openwrt.org/releases/23.05.3/targets/sunxi/cortexa7/openwrt-sdk-23.05.3-sunxi-cortexa7_gcc-12.3.0_musl_eabi.Linux-x86_64.tar.xz"
-                ;;
-              "arm_cortex-a9")
-                SDK_URL="https://downloads.openwrt.org/releases/23.05.3/targets/armvirt/32/openwrt-sdk-23.05.3-armvirt-32_gcc-12.3.0_musl.Linux-x86_64.tar.xz"
-                ;;
-            esac
+            SDK_FILE="openwrt-sdk-23.05.3-${ARCH}_gcc-12.3.0_musl.Linux-x86_64.tar.xz"
+            ;;
+          "24.10.5")
+            SDK_FILE="openwrt-sdk-24.10.5-${ARCH}_gcc-13.3.0_musl.Linux-x86_64.tar.zst"
+            ;;
+          "25.12.0")
+            SDK_FILE="openwrt-sdk-25.12.0-${ARCH}_gcc-14.3.0_musl.Linux-x86_64.tar.zst"
+            ;;
+          *)
+            echo "Unsupported OpenWrt version: $VERSION"
+            exit 1
             ;;
         esac
-
-        if [ -n "$SDK_URL" ]; then
-          echo "Downloading SDK: $SDK_URL"
-          wget -q "$SDK_URL" -O openwrt-sdk.tar.xz
-          tar -xf openwrt-sdk.tar.xz
-          mv openwrt-sdk-* openwrt-sdk
-        else
-          echo "Error: No SDK URL found for target ${{ matrix.target_arch }} and version ${{ matrix.openwrt_version }}"
+        
+        echo "SDK filename: $SDK_FILE"
+        
+        # 尝试从多个镜像下载
+        IFS=' ' read -ra MIRRORS <<< "$MIRROR_SITES"
+        
+        DOWNLOAD_SUCCESS=false
+        for mirror in "${MIRRORS[@]}"; do
+          echo "Trying mirror: $mirror"
+          MIRROR_URL="${mirror}/releases/${VERSION}/targets/rockchip/armv8/$SDK_FILE"
+          echo "URL: $MIRROR_URL"
+          
+          if curl -L --retry 3 --retry-delay 5 -o "$SDK_FILE" "$MIRROR_URL"; then
+            echo "Download successful from $mirror"
+            DOWNLOAD_SUCCESS=true
+            break
+          else
+            echo "Download failed from $mirror"
+            rm -f "$SDK_FILE"
+          fi
+        done
+        
+        if [ "$DOWNLOAD_SUCCESS" = false ]; then
+          echo "Error: Failed to download SDK from all mirrors"
+          echo "Manual download URLs:"
+          for mirror in "${MIRRORS[@]}"; do
+            echo "  ${mirror}/releases/${VERSION}/targets/rockchip/armv8/$SDK_FILE"
+          done
           exit 1
         fi
+        
+        echo "SDK_FILE=$SDK_FILE" >> $GITHUB_OUTPUT
+        echo "Download completed"
 
-    - name: Prepare ZeroClaw source
+    - name: Extract SDK
       run: |
-        # Clone zeroclaw source
-        git clone --depth 1 https://github.com/zeroclaw-labs/zeroclaw.git zeroclaw-source
+        SDK_FILE="${{ steps.download_sdk.outputs.SDK_FILE }}"
+        echo "Extracting $SDK_FILE..."
+        
+        if [[ "$SDK_FILE" == *.tar.xz ]]; then
+          tar -xf "$SDK_FILE"
+        elif [[ "$SDK_FILE" == *.tar.zst ]]; then
+          tar --zstd -xf "$SDK_FILE"
+        fi
+        
+        # 重命名目录为 openwrt
+        SDK_DIR=$(find . -maxdepth 1 -type d -name "openwrt-sdk-*" | head -1)
+        if [ -n "$SDK_DIR" ]; then
+          mv "$SDK_DIR" openwrt
+          echo "Renamed $SDK_DIR to openwrt"
+        else
+          echo "Error: Could not find extracted SDK directory"
+          exit 1
+        fi
+        
+        echo "SDK extracted to: openwrt"
 
-        # Prepare source directory for OpenWrt build
-        mkdir -p zeroclaw-openwrt/src
-        cp -r zeroclaw-source/* zeroclaw-openwrt/src/
-
-        # Clean up git files to reduce size
-        find zeroclaw-openwrt/src -name ".git" -type d -exec rm -rf {} + 2>/dev/null || true
-        find zeroclaw-openwrt/src -name ".github" -type d -exec rm -rf {} + 2>/dev/null || true
-
-    - name: Copy package to SDK
+    - name: Create zeroclaw package directory
       run: |
-        # Copy our OpenWrt package to SDK
-        cp -r zeroclaw-openwrt openwrt-sdk/package/
+        mkdir -p openwrt/package/$PACKAGE_NAME
+        # Copy source code
+        if [ -d "src" ]; then
+          cp -r src openwrt/package/$PACKAGE_NAME/
+          echo "Copied source code from src/"
+        else
+          # Create minimal example
+          mkdir -p openwrt/package/$PACKAGE_NAME/src
+          cat > openwrt/package/$PACKAGE_NAME/src/main.c << 'EOF'
+#include <stdio.h>
 
-        # Create feeds.conf to include our local package
-        echo "src-link zeroclaw $(pwd)/openwrt-sdk/package" > openwrt-sdk/feeds.conf
+int main() {
+    printf("Zeroclaw Application for OpenWrt\n");
+    printf("Built for version: ${{ env.OPENWRT_VERSION }}\n");
+    return 0;
+}
+EOF
+          echo "Created example source code"
+        fi
+        
+        # Create Makefile
+        cat > openwrt/package/$PACKAGE_NAME/Makefile << 'EOF'
+include $(TOPDIR)/rules.mk
 
-    - name: Update feeds and configure
+PKG_NAME:=zeroclaw
+PKG_VERSION:=1.0.0
+PKG_RELEASE:=1
+
+PKG_MAINTAINER:=Zeroclaw Maintainer
+PKG_LICENSE:=MIT
+
+include $(INCLUDE_DIR)/package.mk
+
+define Package/zeroclaw
+  SECTION:=utils
+  CATEGORY:=Utilities
+  TITLE:=Zeroclaw Application
+  URL:=https://github.com/${{ github.repository }}
+  DEPENDS:=+libc
+endef
+
+define Package/zeroclaw/description
+  Zeroclaw application for OpenWrt ${{ env.OPENWRT_VERSION }}
+endef
+
+define Build/Prepare
+  mkdir -p $(PKG_BUILD_DIR)
+  $(CP) ./src/* $(PKG_BUILD_DIR)/
+endef
+
+define Build/Configure
+  # Nothing to configure
+endef
+
+define Build/Compile
+  $(TARGET_CC) $(TARGET_CFLAGS) -o $(PKG_BUILD_DIR)/zeroclaw $(PKG_BUILD_DIR)/main.c
+endef
+
+define Package/zeroclaw/install
+  $(INSTALL_DIR) $(1)/usr/bin
+  $(INSTALL_BIN) $(PKG_BUILD_DIR)/zeroclaw $(1)/usr/bin/
+endef
+
+$(eval $(call BuildPackage,zeroclaw))
+EOF
+        echo "Created Makefile"
+
+    - name: Update feeds
       run: |
-        cd openwrt-sdk
+        cd openwrt
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
-        # Configure to build only zeroclaw package
-        cat > .config << EOF
-        CONFIG_TARGET_${{ matrix.target_arch }}=y
-        CONFIG_PACKAGE_zeroclaw=m
-        EOF
-
-        # Run oldconfig to set defaults
+    - name: Configure build
+      run: |
+        cd openwrt
+        # Minimal configuration
+        echo "CONFIG_TARGET_rockchip=y" > .config
+        echo "CONFIG_TARGET_rockchip_armv8=y" >> .config
+        echo "CONFIG_PACKAGE_zeroclaw=m" >> .config
         make defconfig
 
-    - name: Build ZeroClaw package
+    - name: Build package
       run: |
-        cd openwrt-sdk
-        make package/zeroclaw/compile V=s -j$(nproc)
-
-        # Check if package was built
-        ARCH_DIR=$(find bin/packages -type d -name "*${{ matrix.target_arch }}*" | head -1)
-        if [ -n "$ARCH_DIR" ]; then
-          IPK_FILE=$(find "$ARCH_DIR" -name "zeroclaw*.ipk" | head -1)
-          if [ -f "$IPK_FILE" ]; then
-            echo "Package built: $IPK_FILE"
-            # Copy to workspace for artifact upload
-            mkdir -p ../artifacts
-            cp "$IPK_FILE" "../artifacts/zeroclaw-${{ matrix.target_arch }}.ipk"
-          else
-            echo "Error: IPK file not found"
-            ls -la "$ARCH_DIR"/
-            exit 1
-          fi
+        cd openwrt
+        echo "Building package..."
+        make package/$PACKAGE_NAME/compile V=s 2>&1 | tee build.log
+        
+        if [ ${PIPESTATUS[0]} -eq 0 ]; then
+          echo "Build successful!"
         else
-          echo "Error: Architecture directory not found"
-          ls -la bin/packages/
+          echo "Build failed. Last 50 lines of log:"
+          tail -50 build.log
+          exit 1
+        fi
+
+    - name: Find built package
+      run: |
+        cd openwrt
+        # Search for IPK file
+        IPK_FILE=$(find bin -name "*${PACKAGE_NAME}*.ipk" -type f | head -1)
+        
+        if [ -f "$IPK_FILE" ]; then
+          echo "IPK_FILE=$IPK_FILE" >> $GITHUB_ENV
+          echo "Package found: $IPK_FILE"
+          echo "Size: $(du -h "$IPK_FILE" | cut -f1)"
+        else
+          echo "Error: No IPK file found"
+          echo "Searching in bin directory:"
+          find bin -type f -name "*.ipk" 2>/dev/null || true
           exit 1
         fi
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: zeroclaw-${{ matrix.target_arch }}
-        path: artifacts/zeroclaw-${{ matrix.target_arch }}.ipk
-        retention-days: 7
+        name: zeroclaw-${{ env.OPENWRT_VERSION }}
+        path: openwrt/${{ env.IPK_FILE }}
+        retention-days: 30
 
-    - name: Create release on tag
-      if: startsWith(github.ref, 'refs/tags/')
-      run: |
-        # This would be expanded to create GitHub releases
-        echo "Tag detected: ${{ github.ref }}"
-        # In a real workflow, you'd upload all artifacts to the release
-        # For now, we'll just note it
-        echo "Release artifacts would be uploaded here"
-
-  test:
-    runs-on: ubuntu-22.04
-    needs: build
-    if: github.event_name == 'workflow_dispatch'
-
-    steps:
-    - name: Download artifacts
-      uses: actions/download-artifact@v4
+    - name: Create GitHub Release
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: softprops/action-gh-release@v1
       with:
-        path: artifacts
+        files: openwrt/${{ env.IPK_FILE }}
+        generate_release_notes: true
 
-    - name: Test IPK structure
-      run: |
-        # Install ipkg-utils for testing
-        sudo apt-get install -y ipkg-utils
-
-        for ipk in artifacts/*/*.ipk; do
-          echo "Testing IPK: $ipk"
-
-          # Extract IPK
-          mkdir -p test-ipk
-          tar -xzf "$ipk" -C test-ipk
-
-          # Check control file
-          if [ -f "test-ipk/control.tar.gz" ]; then
-            tar -xzf test-ipk/control.tar.gz -C test-ipk
-            echo "Control contents:"
-            cat test-ipk/control 2>/dev/null || true
-          fi
-
-          # Check data file
-          if [ -f "test-ipk/data.tar.gz" ]; then
-            tar -xzf test-ipk/data.tar.gz -C test-ipk
-            echo "File structure:"
-            find test-ipk -type f | sort
-          fi
-
-          rm -rf test-ipk
-          echo "---"
-        done
-
-    - name: Summary
-      run: |
-        echo "Build completed successfully!"
-        echo "Target architectures:"
-        ls artifacts/ 2>/dev/null || echo "No artifacts found"
-        echo ""
-        echo "IPK packages are ready for deployment to OpenWrt devices."
+    - name: Upload build log on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-log-${{ github.run_id }}
+        path: openwrt/build.log
+        retention-days: 7

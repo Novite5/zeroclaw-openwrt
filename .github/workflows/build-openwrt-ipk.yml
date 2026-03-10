@@ -66,7 +66,7 @@ jobs:
       run: |
         VERSION="${{ env.VERSION }}"
         echo "Downloading SDK for version: $VERSION"
-        
+
         # 使用 case 语句（sh 兼容）
         case "$VERSION" in
           "23.05.3")
@@ -83,17 +83,17 @@ jobs:
             exit 1
             ;;
         esac
-        
+
         URL="https://downloads.openwrt.org/releases/$VERSION/targets/rockchip/armv8/$FILE"
         echo "Download URL: $URL"
-        
+
         wget --progress=dot:giga "$URL" -O "$FILE"
-        
+
         if [ ! -f "$FILE" ]; then
           echo "Download failed"
           exit 1
         fi
-        
+
         echo "Download successful"
         echo "SDK_FILE=$FILE" >> $GITHUB_OUTPUT
 
@@ -102,12 +102,12 @@ jobs:
       run: |
         FILE="${{ steps.download.outputs.SDK_FILE }}"
         echo "Extracting $FILE..."
-        
+
         if [ ! -f "$FILE" ]; then
           echo "File not found: $FILE"
           exit 1
         fi
-        
+
         # 使用 case 语句判断文件类型（sh 兼容）
         case "$FILE" in
           *.tar.xz)
@@ -123,7 +123,7 @@ jobs:
             exit 1
             ;;
         esac
-        
+
         # 查找解压后的目录
         SDK_DIR=$(find . -maxdepth 1 -type d -name "openwrt-sdk-*" | head -1)
         if [ -z "$SDK_DIR" ]; then
@@ -131,21 +131,21 @@ jobs:
           ls -la
           exit 1
         fi
-        
+
         echo "Extracted to: $SDK_DIR"
-        
+
         # 重命名为 openwrt
         rm -rf openwrt
         mv "$SDK_DIR" openwrt
-        
+
         echo "Renamed to: openwrt"
 
     - name: Copy Makefile
       run: |
         mkdir -p openwrt/package/$PACKAGE_NAME
-        
-        if [ -f "zeroclaw-openwrt/Makefile" ]; then
-          cp zeroclaw-openwrt/Makefile openwrt/package/$PACKAGE_NAME/
+
+        if [ -f "Makefile" ]; then
+          cp Makefile openwrt/package/$PACKAGE_NAME/
           echo "Makefile copied"
         else
           echo "Makefile not found"
@@ -155,14 +155,14 @@ jobs:
     - name: Setup OpenWrt
       run: |
         cd openwrt
-        
+
         ./scripts/feeds update -a
         ./scripts/feeds install -a
-        
+
         echo "CONFIG_TARGET_rockchip=y" > .config
         echo "CONFIG_TARGET_rockchip_armv8=y" >> .config
         echo "CONFIG_PACKAGE_zeroclaw=m" >> .config
-        
+
         make defconfig
 
     - name: Download sources
@@ -179,7 +179,7 @@ jobs:
       run: |
         cd openwrt
         IPK_FILE=$(find bin -name "*${PACKAGE_NAME}*.ipk" -type f | head -1)
-        
+
         if [ -f "$IPK_FILE" ]; then
           echo "IPK_FILE=$IPK_FILE" >> $GITHUB_ENV
           echo "Found IPK: $IPK_FILE"

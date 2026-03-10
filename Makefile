@@ -1,4 +1,5 @@
-include $(TOPDIR)/rules.mk
+# 使用相对路径引用 rules.mk
+include ../../rules.mk
 
 # Package Metadata
 PKG_NAME:=zeroclaw

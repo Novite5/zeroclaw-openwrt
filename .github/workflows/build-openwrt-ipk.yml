@@ -1,4 +1,4 @@
-name: Build OpenWrt IPK for Rockchip ARMv8
+name: Build OpenWrt IPK for Rockchip ARMv8 (Final)
 
 on:
   push:
@@ -52,38 +52,22 @@ jobs:
         apt-get update
         apt-get install -y \
           build-essential \
-          ccache \
-          ecj \
-          fastjar \
           file \
+          gcc \
           g++ \
-          gawk \
-          gettext \
-          git \
-          java-propose-classpath \
-          libelf-dev \
+          make \
           libncurses5-dev \
           libncursesw5-dev \
           libssl-dev \
           python3 \
-          python3-distutils \
-          python3-setuptools \
           python3-dev \
-          python3-pip \
-          rsync \
-          subversion \
-          swig \
-          time \
           unzip \
           wget \
-          xsltproc \
-          zlib1g-dev \
-          jq \
           curl \
           ca-certificates \
+          zlib1g-dev \
           zstd \
-          rustc \
-          cargo
+          rsync
 
     - name: Download OpenWrt SDK for Rockchip ARMv8
       id: download_sdk
@@ -95,17 +79,14 @@ jobs:
         # 根据版本确定 SDK 文件名
         case "$VERSION" in
           "23.05.3")
-            # 23.05.3 rockchip-armv8 SDK
             SDK_FILE="openwrt-sdk-23.05.3-rockchip-armv8_gcc-12.3.0_musl.Linux-x86_64.tar.xz"
             SDK_URL="https://downloads.openwrt.org/releases/23.05.3/targets/rockchip/armv8/$SDK_FILE"
             ;;
           "24.10.5")
-            # 24.10.5 rockchip-armv8 SDK
             SDK_FILE="openwrt-sdk-24.10.5-rockchip-armv8_gcc-13.3.0_musl.Linux-x86_64.tar.zst"
             SDK_URL="https://downloads.openwrt.org/releases/24.10.5/targets/rockchip/armv8/$SDK_FILE"
             ;;
           "25.12.0")
-            # 25.12.0 rockchip-armv8 SDK
             SDK_FILE="openwrt-sdk-25.12.0-rockchip-armv8_gcc-14.3.0_musl.Linux-x86_64.tar.zst"
             SDK_URL="https://downloads.openwrt.org/releases/25.12.0/targets/rockchip/armv8/$SDK_FILE"
             ;;
@@ -116,139 +97,87 @@ jobs:
         esac
         
         echo "SDK filename: $SDK_FILE"
-        echo "Official URL: $SDK_URL"
         
         # 尝试从多个镜像下载
         IFS=' ' read -ra MIRRORS <<< "$MIRROR_SITES"
         
-        DOWNLOAD_SUCCESS=false
         for mirror in "${MIRRORS[@]}"; do
           echo "Trying mirror: $mirror"
           MIRROR_URL="$mirror/releases/$VERSION/targets/rockchip/armv8/$SDK_FILE"
-          echo "Mirror URL: $MIRROR_URL"
+          echo "URL: $MIRROR_URL"
           
           if curl -L --retry 3 --retry-delay 5 -o "$SDK_FILE" "$MIRROR_URL"; then
             echo "Download successful from $mirror"
-            DOWNLOAD_SUCCESS=true
+            echo "SDK_FILE=$SDK_FILE" >> $GITHUB_OUTPUT
             break
-          else
-            echo "Download failed from $mirror"
-            rm -f "$SDK_FILE" 2>/dev/null || true
           fi
         done
         
-        if [ "$DOWNLOAD_SUCCESS" = false ]; then
-          echo "Trying official URL..."
-          if curl -L --retry 3 --retry-delay 5 -o "$SDK_FILE" "$SDK_URL"; then
-            echo "Download successful from official URL"
-            DOWNLOAD_SUCCESS=true
-          fi
-        fi
-        
-        if [ "$DOWNLOAD_SUCCESS" = true ]; then
-          echo "SDK_FILE=$SDK_FILE" >> $GITHUB_OUTPUT
-          echo "Download completed"
-          echo "File size: $(du -h "$SDK_FILE" 2>/dev/null | cut -f1 || echo 'unknown')"
-        else
-          echo "Error: Failed to download SDK"
-          echo "Please check if SDK exists for:"
-          echo "  Version: $VERSION"
-          echo "  Architecture: rockchip/armv8"
-          echo ""
-          echo "You can check available SDKs at:"
-          echo "  https://downloads.openwrt.org/releases/$VERSION/targets/rockchip/armv8/"
+        if [ ! -f "$SDK_FILE" ]; then
+          echo "Error: Failed to download SDK from all mirrors"
+          echo "Try downloading manually from: $SDK_URL"
           exit 1
         fi
 
     - name: Extract SDK
       run: |
         SDK_FILE="${{ steps.download_sdk.outputs.SDK_FILE }}"
-        echo "Extracting $SDK_FILE..."
         
         if [[ "$SDK_FILE" == *.tar.xz ]]; then
           tar -xf "$SDK_FILE"
         elif [[ "$SDK_FILE" == *.tar.zst ]]; then
           tar --zstd -xf "$SDK_FILE"
-        else
-          echo "Error: Unknown file format"
-          exit 1
         fi
         
-        # 查找并重命名 SDK 目录
+        # 查找 SDK 目录
         SDK_DIR=$(find . -maxdepth 1 -type d -name "openwrt-sdk-*" | head -1)
         if [ -n "$SDK_DIR" ]; then
           mv "$SDK_DIR" openwrt
-          echo "Renamed $SDK_DIR to openwrt"
+          echo "SDK extracted to: openwrt"
         else
-          echo "Error: Could not find SDK directory"
-          ls -la
+          echo "Error: SDK directory not found"
           exit 1
         fi
 
-    - name: Prepare package source
+    - name: Copy existing Makefile
       run: |
-        # 复制现有的 Makefile（如果存在）
+        # 检查是否存在现有的 Makefile
         if [ -f "zeroclaw-openwrt/Makefile" ]; then
-          echo "Using existing Makefile from zeroclaw-openwrt/"
+          echo "Copying existing Makefile..."
           mkdir -p openwrt/package/$PACKAGE_NAME
           cp zeroclaw-openwrt/Makefile openwrt/package/$PACKAGE_NAME/
           
-          # 复制其他必要的文件
-          if [ -d "zeroclaw-openwrt/files" ]; then
-            cp -r zeroclaw-openwrt/files openwrt/package/$PACKAGE_NAME/
+          # 检查是否需要修复 TOPDIR 引用
+          if grep -q "\$(TOPDIR)/rules.mk" openwrt/package/$PACKAGE_NAME/Makefile; then
+            echo "Makefile contains \$(TOPDIR)/rules.mk - this should work in SDK environment"
           fi
         else
-          echo "Warning: No existing Makefile found"
-          echo "Creating minimal package structure..."
-          mkdir -p openwrt/package/$PACKAGE_NAME
-          
-          # 创建基本的 Makefile
-          cat > openwrt/package/$PACKAGE_NAME/Makefile << 'EOF'
-include $(TOPDIR)/rules.mk
-
-PKG_NAME:=zeroclaw
-PKG_VERSION:=1.0.0
-PKG_RELEASE:=1
-
-PKG_MAINTAINER:=Zeroclaw Maintainer
-PKG_LICENSE:=MIT
-
-include $(INCLUDE_DIR)/package.mk
-
-define Package/zeroclaw
-  SECTION:=utils
-  CATEGORY:=Utilities
-  TITLE:=Zeroclaw Application
-  URL:=https://github.com/${{ github.repository }}
-  DEPENDS:=+libc
-endef
-
-define Package/zeroclaw/description
-  Zeroclaw application for OpenWrt.
-endef
-
-define Build/Prepare
-  mkdir -p $(PKG_BUILD_DIR)
-  # 这里可以添加源代码准备步骤
-endef
-
-define Build/Configure
-  # 配置步骤
-endef
-
-define Build/Compile
-  # 编译步骤 - 这里需要根据实际项目调整
-  echo "Building zeroclaw..."
-endef
-
-define Package/zeroclaw/install
-  $(INSTALL_DIR) $(1)/usr/bin
-  # 这里需要指定实际的可执行文件路径
-endef
-
-$(eval $(call BuildPackage,zeroclaw))
-EOF
+          echo "Error: No existing Makefile found at zeroclaw-openwrt/Makefile"
+          echo "Please ensure the Makefile exists in your repository"
+          exit 1
         fi
+
+    - name: Test Makefile syntax
+      run: |
+        cd openwrt
+        echo "Testing Makefile syntax..."
+        
+        # 创建一个测试脚本来检查 Makefile
+        cat > test_makefile.sh << 'EOF'
+#!/bin/bash
+cd package/$PACKAGE_NAME
+echo "Current directory: $(pwd)"
+echo "Checking if rules.mk exists..."
+if [ -f "../../rules.mk" ]; then
+  echo "✓ rules.mk found at ../../rules.mk"
+else
+  echo "✗ rules.mk not found at ../../rules.mk"
+  echo "Looking for rules.mk..."
+  find ../.. -name "rules.mk" -type f | head -5
+fi
+EOF
+        chmod +x test_makefile.sh
+        ./test_makefile.sh
 
     - name: Update feeds
       run: |
@@ -256,64 +185,53 @@ EOF
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
-    - name: Configure for Rockchip ARMv8
+    - name: Configure build
       run: |
         cd openwrt
-        # 为 rockchip-armv8 创建配置
-        cat > .config << 'EOF'
-CONFIG_TARGET_rockchip=y
-CONFIG_TARGET_rockchip_armv8=y
-CONFIG_PACKAGE_zeroclaw=m
-EOF
+        # 简单的配置
+        echo "CONFIG_TARGET_rockchip=y" > .config
+        echo "CONFIG_TARGET_rockchip_armv8=y" >> .config
+        echo "CONFIG_PACKAGE_zeroclaw=m" >> .config
         make defconfig
 
     - name: Build package
       run: |
         cd openwrt
-        echo "Building $PACKAGE_NAME package..."
+        echo "Building package..."
         
-        # 下载必要的源文件
-        make download
+        # 先下载必要的文件
+        make download V=s 2>&1 | tee download.log || echo "Download may have warnings"
         
-        # 编译包
+        # 构建包
         make package/$PACKAGE_NAME/compile V=s 2>&1 | tee build.log
         
-        # 检查构建结果
         if [ ${PIPESTATUS[0]} -eq 0 ]; then
-          echo "Build successful!"
+          echo "✓ Build successful"
         else
-          echo "Build failed. Last 50 lines of log:"
-          tail -50 build.log
+          echo "✗ Build failed"
+          echo "Last 100 lines of build.log:"
+          tail -100 build.log
           exit 1
         fi
 
-    - name: Find and upload IPK artifact
+    - name: Find IPK file
       run: |
         cd openwrt
-        # 查找生成的 IPK 文件
         IPK_FILE=$(find bin -name "*${PACKAGE_NAME}*.ipk" -type f | head -1)
         
         if [ -f "$IPK_FILE" ]; then
           echo "IPK_FILE=$IPK_FILE" >> $GITHUB_ENV
-          echo "Package built: $IPK_FILE"
-          echo "Size: $(du -h "$IPK_FILE" | cut -f1)"
+          echo "✓ Found IPK: $IPK_FILE"
         else
-          echo "Error: IPK file not found"
-          echo "Searching in bin directory:"
-          find bin -type f -name "*.ipk" 2>/dev/null || echo "No IPK files found"
+          echo "✗ IPK not found"
+          echo "Searching for any IPK files..."
+          find bin -name "*.ipk" -type f 2>/dev/null | head -10
           exit 1
         fi
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: zeroclaw-${{ env.OPENWRT_VERSION }}-rockchip-armv8
+        name: zeroclaw-${{ env.OPENWRT_VERSION }}-rockchip
         path: openwrt/${{ env.IPK_FILE }}
         retention-days: 30
-
-    - name: Create GitHub Release
-      if: startsWith(github.ref, 'refs/tags/v')
-      uses: softprops/action-gh-release@v1
-      with:
-        files: openwrt/${{ env.IPK_FILE }}
-        generate_release_notes: true

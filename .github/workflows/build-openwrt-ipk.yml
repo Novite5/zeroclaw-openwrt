@@ -1,4 +1,4 @@
-name: Build OpenWrt IPK for ARM
+name: Build OpenWrt IPK
 
 on:
   push:
@@ -6,155 +6,117 @@ on:
     tags: [ 'v*' ]
   pull_request:
     branches: [ main, master ]
-  workflow_dispatch:  # Allow manual triggering
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'OpenWrt version'
+        required: true
+        default: '24.10.5'
+        type: choice
+        options:
+          - '23.05.3'
+          - '24.10.5'
+          - '25.12.0'
 
 env:
-  OPENWRT_VERSION: "24.10.5"  # 改为最新版本
-  TARGET_ARCH: "rockchip-armv8"  # 改为 rockchip 架构
   PACKAGE_NAME: "zeroclaw"
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     container:
-      image: ubuntu:22.04
-      options: --privileged  # Required for some build operations
+      image: ubuntu:24.04
 
     steps:
-    - name: Checkout repository
+    - name: Checkout
       uses: actions/checkout@v4
-      with:
-        submodules: recursive
 
-    - name: Install build dependencies
+    - name: Set version
+      id: set_version
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+        else
+          echo "VERSION=24.10.5" >> $GITHUB_OUTPUT
+        fi
+        echo "OPENWRT_VERSION=${{ steps.set_version.outputs.VERSION }}" >> $GITHUB_ENV
+
+    - name: Install deps
       run: |
         apt-get update
         apt-get install -y \
           build-essential \
-          ccache \
-          ecj \
-          fastjar \
-          file \
-          g++ \
-          gawk \
-          gettext \
-          git \
-          java-propose-classpath \
-          libelf-dev \
           libncurses5-dev \
-          libncursesw5-dev \
           libssl-dev \
           python3 \
-          python3-distutils \
-          python3-setuptools \
           python3-dev \
-          rsync \
-          subversion \
-          swig \
-          time \
           unzip \
           wget \
-          xsltproc \
-          zlib1g-dev \
-          jq \
           curl \
-          zstd  # 添加 zstd 用于解压 .zst 文件
+          zstd
 
-    - name: Download OpenWrt SDK
+    - name: Download SDK
       run: |
-        # 下载对应版本的 SDK
-        SDK_FILE="openwrt-sdk-$OPENWRT_VERSION-$TARGET_ARCH"
+        VERSION="${{ env.OPENWRT_VERSION }}"
         
-        if [[ "$OPENWRT_VERSION" == "23.05.3" ]]; then
-          SDK_FILE="${SDK_FILE}_gcc-12.3.0_musl.Linux-x86_64.tar.xz"
-        elif [[ "$OPENWRT_VERSION" == "24.10.5" ]]; then
-          SDK_FILE="${SDK_FILE}_gcc-13.3.0_musl.Linux-x86_64.tar.zst"
-        elif [[ "$OPENWRT_VERSION" == "25.12.0" ]]; then
-          SDK_FILE="${SDK_FILE}_gcc-14.3.0_musl.Linux-x86_64.tar.zst"
+        case "$VERSION" in
+          "23.05.3")
+            FILE="openwrt-sdk-23.05.3-rockchip-armv8_gcc-12.3.0_musl.Linux-x86_64.tar.xz"
+            ;;
+          "24.10.5")
+            FILE="openwrt-sdk-24.10.5-rockchip-armv8_gcc-13.3.0_musl.Linux-x86_64.tar.zst"
+            ;;
+          "25.12.0")
+            FILE="openwrt-sdk-25.12.0-rockchip-armv8_gcc-14.3.0_musl.Linux-x86_64.tar.zst"
+            ;;
+        esac
+        
+        URL="https://downloads.openwrt.org/releases/$VERSION/targets/rockchip/armv8/$FILE"
+        echo "Downloading $URL"
+        wget "$URL"
+        
+        # Extract
+        if [[ "$FILE" == *.tar.xz ]]; then
+          tar -xf "$FILE"
+        elif [[ "$FILE" == *.tar.zst ]]; then
+          tar --zstd -xf "$FILE"
         fi
         
-        SDK_URL="https://downloads.openwrt.org/releases/$OPENWRT_VERSION/targets/rockchip/armv8/$SDK_FILE"
-        
-        echo "Downloading OpenWrt SDK from: $SDK_URL"
-        wget "$SDK_URL" -O "$SDK_FILE"
-        
-        # 解压 SDK
-        if [[ "$SDK_FILE" == *.tar.xz ]]; then
-          tar -xf "$SDK_FILE"
-        elif [[ "$SDK_FILE" == *.tar.zst ]]; then
-          tar --zstd -xf "$SDK_FILE"
-        fi
-        
-        # 重命名目录为 openwrt
-        SDK_DIR=$(find . -maxdepth 1 -type d -name "openwrt-sdk-*" | head -1)
-        if [ -n "$SDK_DIR" ]; then
-          mv "$SDK_DIR" openwrt
-        else
-          echo "Error: Could not find SDK directory"
-          exit 1
-        fi
+        # Rename to openwrt
+        mv openwrt-sdk-* openwrt 2>/dev/null || true
 
-    - name: Update feeds
+    - name: Copy Makefile
+      run: |
+        mkdir -p openwrt/package/$PACKAGE_NAME
+        cp zeroclaw-openwrt/Makefile openwrt/package/$PACKAGE_NAME/
+
+    - name: Build
       run: |
         cd openwrt
         ./scripts/feeds update -a
         ./scripts/feeds install -a
-
-    - name: Create zeroclaw package directory
-      run: |
-        mkdir -p openwrt/package/$PACKAGE_NAME
-        # 使用现有的 Makefile
-        if [ -f "zeroclaw-openwrt/Makefile" ]; then
-          cp zeroclaw-openwrt/Makefile openwrt/package/$PACKAGE_NAME/
-        else
-          echo "Error: Makefile not found"
-          exit 1
-        fi
-
-    - name: Configure OpenWrt for target
-      run: |
-        cd openwrt
-        # 配置为 rockchip-armv8
-        cat > .config << 'EOF'
-CONFIG_TARGET_rockchip=y
-CONFIG_TARGET_rockchip_armv8=y
-CONFIG_PACKAGE_zeroclaw=m
-EOF
+        
+        echo "CONFIG_TARGET_rockchip=y" > .config
+        echo "CONFIG_TARGET_rockchip_armv8=y" >> .config
+        echo "CONFIG_PACKAGE_zeroclaw=m" >> .config
         make defconfig
+        
+        make package/$PACKAGE_NAME/compile V=s
 
-    - name: Download sources
+    - name: Find IPK
       run: |
         cd openwrt
-        make download
-
-    - name: Build zeroclaw package
-      run: |
-        cd openwrt
-        make package/$PACKAGE_NAME/compile V=s -j$(nproc)
-
-    - name: Find IPK file
-      run: |
-        cd openwrt
-        # 查找 IPK 文件
-        IPK_FILE=$(find bin -name "*${PACKAGE_NAME}*.ipk" -type f | head -1)
-        if [ -f "$IPK_FILE" ]; then
-          echo "IPK_FILE=$IPK_FILE" >> $GITHUB_ENV
-          echo "Found IPK: $IPK_FILE"
+        IPK=$(find bin -name "*${PACKAGE_NAME}*.ipk" -type f | head -1)
+        if [ -f "$IPK" ]; then
+          echo "IPK_PATH=$IPK" >> $GITHUB_ENV
+          echo "Found: $IPK"
         else
-          echo "No IPK file found!"
+          echo "IPK not found"
           exit 1
         fi
 
-    - name: Upload IPK artifact
+    - name: Upload
       uses: actions/upload-artifact@v4
       with:
-        name: zeroclaw-ipk
-        path: openwrt/${{ env.IPK_FILE }}
-        retention-days: 7
-
-    - name: Create release on tag
-      if: startsWith(github.ref, 'refs/tags/v')
-      uses: softprops/action-gh-release@v1
-      with:
-        files: openwrt/${{ env.IPK_FILE }}
-        generate_release_notes: true
+        name: zeroclaw-${{ env.OPENWRT_VERSION }}
+        path: openwrt/${{ env.IPK_PATH }}

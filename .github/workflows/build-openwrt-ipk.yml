@@ -168,9 +168,16 @@ jobs:
     - name: Build package
       run: |
         cd openwrt
-        # Build package directly with single job for better error output
-        # Download happens automatically during build
-        make package/$PACKAGE_NAME/compile V=s -j1
+        # Build package with maximum verbosity for debugging
+        # V=sc shows full command lines and output
+        make package/$PACKAGE_NAME/compile V=sc -j1 2>&1 | tee build.log
+        
+        # Check build result
+        if [ ${PIPESTATUS[0]} -ne 0 ]; then
+          echo "Build failed! Showing last 200 lines of log:"
+          tail -n 200 build.log
+          exit 1
+        fi
 
     - name: Find IPK file
       run: |

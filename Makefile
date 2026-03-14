@@ -47,7 +47,6 @@ endef
 
 # Build/Configure: Steps to configure the package
 define Build/Configure
-	# Set up Rust cross-compilation environment
 	( \
 		cd $(PKG_BUILD_DIR); \
 		mkdir -p .cargo; \
@@ -61,10 +60,6 @@ endef
 define Build/Compile
 	( \
 		cd $(PKG_BUILD_DIR); \
-		mkdir -p .cargo; \
-		echo '[target.$(RUSTC_TARGET_NAME)]' > .cargo/config.toml; \
-		echo 'linker = "$(TARGET_CC)"' >> .cargo/config.toml; \
-		echo 'rustflags = ["-C", "link-arg=-Wl,--allow-multiple-definition"]' >> .cargo/config.toml; \
 		CARGO_HOME=$(PKG_BUILD_DIR)/.cargo \
 		CC=$(TARGET_CC) \
 		CXX=$(TARGET_CXX) \
@@ -81,15 +76,15 @@ endef
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/target/$(RUSTC_TARGET_NAME)/release/zeroclaw $(1)/usr/bin/
-	
+
 	# Create config directory
 	$(INSTALL_DIR) $(1)/etc/zeroclaw
-	$(INSTALL_CONF) ./files/config.toml $(1)/etc/zeroclaw/
-	
+	$(INSTALL_CONF) $(CURDIR)/files/config.toml $(1)/etc/zeroclaw/
+
 	# Create init script
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/zeroclaw.init $(1)/etc/init.d/zeroclaw
-	
+	$(INSTALL_BIN) $(CURDIR)/files/zeroclaw.init $(1)/etc/init.d/zeroclaw
+
 	# Create service enable/disable symlinks
 	$(INSTALL_DIR) $(1)/etc/rc.d
 	ln -sf ../init.d/zeroclaw $(1)/etc/rc.d/S99zeroclaw

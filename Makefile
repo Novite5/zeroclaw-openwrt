@@ -9,7 +9,7 @@ PKG_RELEASE:=1
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/zeroclaw-labs/zeroclaw.git
 PKG_SOURCE_DATE:=2026-03-09
-PKG_SOURCE_VERSION:=main
+PKG_SOURCE_VERSION:=master
 PKG_MIRROR_HASH:=skip
 
 # Package Configuration
@@ -17,7 +17,7 @@ SECTION:=utils
 CATEGORY:=Utilities
 TITLE:=ZeroClaw - Fast, small, and fully autonomous AI assistant infrastructure
 URL:=https://github.com/zeroclaw-labs/zeroclaw
-DEPENDS:=+libc +libstdcpp +libopenssl +ca-bundle +rust +cargo
+DEPENDS:=+libc +libstdcpp +ca-bundle
 
 # Define the build directory
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)

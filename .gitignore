@@ -41,3 +41,9 @@ credentials.json
 
 # Coverage artifacts
 lcov.info
+
+# OpenWRT standalone toolchain (SDK includes toolchain already)
+OpenWRT/openwrt-toolchain-*/
+
+# OpenWRT SDK (will be downloaded in CI)
+OpenWRT/openwrt-sdk-*/

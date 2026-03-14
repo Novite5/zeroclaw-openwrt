@@ -74,7 +74,9 @@ jobs:
           pkg-config \
           tar \
           unzip \
-          which
+          which \
+          rustc \
+          cargo
 
         # Install pyelftools for U-Boot build
         pip3 install pyelftools --break-system-packages
@@ -181,17 +183,32 @@ jobs:
           tail -n 200 build.log
           exit 1
         fi
+        
+        echo "Build completed successfully"
 
     - name: Find IPK file
       run: |
         cd openwrt
-        IPK_FILE=$(find bin -name "*${PACKAGE_NAME}*.ipk" -type f | head -1)
+        echo "Searching for IPK files..."
+        find bin -name "*.ipk" -type f 2>/dev/null || echo "No IPK files found in bin/"
         
-        if [ -f "$IPK_FILE" ]; then
+        # Try multiple search patterns
+        IPK_FILE=$(find bin -name "*${PACKAGE_NAME}*.ipk" -type f 2>/dev/null | head -1)
+        
+        # If not found, try alternative location
+        if [ -z "$IPK_FILE" ]; then
+          echo "Trying alternative search..."
+          IPK_FILE=$(find . -name "*zeroclaw*.ipk" -type f 2>/dev/null | head -1)
+        fi
+        
+        if [ -n "$IPK_FILE" ] && [ -f "$IPK_FILE" ]; then
           echo "IPK_FILE=$IPK_FILE" >> $GITHUB_ENV
           echo "Found IPK: $IPK_FILE"
         else
-          echo "IPK not found"
+          echo "IPK not found. Listing bin/ directory:"
+          ls -la bin/ 2>/dev/null || echo "bin/ directory does not exist"
+          echo "Full build log:"
+          cat build.log
           exit 1
         fi
 

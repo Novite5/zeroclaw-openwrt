@@ -23,7 +23,6 @@ DEPENDS:=+libc +libstdcpp +ca-bundle
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
-include $(INCLUDE_DIR)/cargo.mk
 
 # Package definition for opkg
 define Package/$(PKG_NAME)
@@ -60,17 +59,18 @@ endef
 
 # Build/Compile: Steps to compile the package
 define Build/Compile
-	# Set up Rust cross-compilation environment
 	( \
 		cd $(PKG_BUILD_DIR); \
+		mkdir -p .cargo; \
+		echo '[target.$(RUSTC_TARGET_NAME)]' > .cargo/config.toml; \
+		echo 'linker = "$(TARGET_CC)"' >> .cargo/config.toml; \
+		echo 'rustflags = ["-C", "link-arg=-Wl,--allow-multiple-definition"]' >> .cargo/config.toml; \
 		CARGO_HOME=$(PKG_BUILD_DIR)/.cargo \
 		CC=$(TARGET_CC) \
 		CXX=$(TARGET_CXX) \
 		AR=$(TARGET_AR) \
 		RUSTFLAGS="-C linker=$(TARGET_CC)" \
-		$(CARGO) build \
-			$(CARGO_VERBOSE) \
-			$(CARGO_INSTALL_ARG) \
+		cargo build \
 			--target $(RUSTC_TARGET_NAME) \
 			--release \
 			--locked; \

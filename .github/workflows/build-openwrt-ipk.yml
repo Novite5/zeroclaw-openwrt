@@ -12,6 +12,8 @@ env:
   PACKAGE_NAME: "zeroclaw"
   OPENWRT_VERSION: "24.10.2"
   OPENWRT_TARGET: "rockchip/armv8"
+  # Use Node.js 24 for JavaScript actions (Node.js 20 deprecated after June 2026)
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   build:

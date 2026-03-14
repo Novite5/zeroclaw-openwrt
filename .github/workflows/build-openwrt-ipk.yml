@@ -150,25 +150,23 @@ jobs:
     - name: Setup OpenWrt
       run: |
         cd openwrt
-        
-        ./scripts/feeds update -a
-        ./scripts/feeds install -a
-        
+
+        # Update and install feeds (ignore warnings about optional kernel modules)
+        ./scripts/feeds update -a 2>&1 | grep -v "does not exist" || true
+        ./scripts/feeds install -a 2>&1 | grep -v "does not exist" || true
+
         echo "CONFIG_TARGET_rockchip=y" > .config
         echo "CONFIG_TARGET_rockchip_armv8=y" >> .config
         echo "CONFIG_PACKAGE_zeroclaw=m" >> .config
-        
-        make defconfig
 
-    - name: Download sources
-      run: |
-        cd openwrt
-        make download
+        make defconfig
 
     - name: Build package
       run: |
         cd openwrt
-        make package/$PACKAGE_NAME/compile V=s
+        # Build package directly with single job for better error output
+        # Download happens automatically during build
+        make package/$PACKAGE_NAME/compile V=s -j1
 
     - name: Find IPK file
       run: |

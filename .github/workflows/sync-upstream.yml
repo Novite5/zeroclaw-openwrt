@@ -1,0 +1,96 @@
+name: Sync Upstream Changes
+
+on:
+  schedule:
+    # Sync every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      sync_branch:
+        description: 'Branch to sync from upstream'
+        required: false
+        default: 'master'
+        type: choice
+        options:
+          - master
+          - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y curl jq git
+      
+      - name: Sync upstream changes
+        id: sync
+        run: |
+          BRANCH="${{ github.event.inputs.sync_branch || 'master' }}"
+          echo "Syncing branch: $BRANCH"
+          
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Fetch upstream
+          git remote add upstream https://github.com/zeroclaw-labs/zeroclaw.git 2>/dev/null || true
+          git fetch upstream "$BRANCH" --tags
+          
+          # Save our workflow files BEFORE sync
+          mkdir -p /tmp/our-files
+          cp -r .github/workflows/build-openwrt-ipk.yml /tmp/our-files/ 2>/dev/null || true
+          cp -r .github/workflows/sync-upstream.yml /tmp/our-files/ 2>/dev/null || true
+          cp Makefile /tmp/our-files/ 2>/dev/null || true
+          cp -r files /tmp/our-files/ 2>/dev/null || true
+          
+          # Reset to upstream
+          git checkout -B temp-branch upstream/"$BRANCH"
+          
+          # Restore our files
+          cp /tmp/our-files/build-openwrt-ipk.yml .github/workflows/ 2>/dev/null || true
+          cp /tmp/our-files/sync-upstream.yml .github/workflows/ 2>/dev/null || true
+          cp /tmp/our-files/Makefile . 2>/dev/null || true
+          cp -r /tmp/our-files/files . 2>/dev/null || true
+          
+          # Delete upstream workflow files (we can't push workflow files with GITHUB_TOKEN)
+          find .github/workflows/ -type f ! -name "build-openwrt-ipk.yml" ! -name "sync-upstream.yml" -delete 2>/dev/null || true
+          
+          # Remove other upstream files we don't need
+          rm -rf .github/ISSUE_TEMPLATE/ 2>/dev/null || true
+          rm -rf .github/PULL_REQUEST_TEMPLATE* 2>/dev/null || true
+          rm -f .github/dependabot.yml 2>/dev/null || true
+          rm -f .github/FUNDING.yml 2>/dev/null || true
+          
+          # Check for changes
+          if [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -m "chore: sync upstream $BRANCH" || true
+            
+            # Push to a NEW branch (not workflow files)
+            git branch -D build-sync 2>/dev/null || true
+            git checkout -b build-sync
+            git push origin build-sync --force
+            echo "changes_detected=true" >> $GITHUB_OUTPUT
+          else
+            echo "changes_detected=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Trigger build on synced branch
+        if: steps.sync.outputs.changes_detected == 'true'
+        run: |
+          # Use GitHub API to trigger build workflow on build-sync branch
+          curl -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/build-openwrt-ipk.yml/dispatches \
+            -d '{"ref":"build-sync"}'

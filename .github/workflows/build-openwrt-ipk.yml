@@ -1,0 +1,307 @@
+name: Build OpenWrt IPK (sh compatible)
+
+on:
+  push:
+    branches: [ build-for-openwrt, build-sync ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ build-for-openwrt, build-sync ]
+  workflow_dispatch:
+    inputs:
+      upstream_release:
+        description: 'Upstream release tag that triggered this build'
+        required: false
+        default: ''
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  PACKAGE_NAME: "zeroclaw"
+  OPENWRT_VERSION: "24.10.2"
+  OPENWRT_TARGET: "rockchip/armv8"
+  # Use Node.js 24 for JavaScript actions (Node.js 20 deprecated after June 2026)
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  UPSTREAM_REPO: "zeroclaw-labs/zeroclaw"
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    container:
+      image: ubuntu:24.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        apt-get update
+        apt-get install -y \
+          build-essential \
+          ccache \
+          ecj \
+          fastjar \
+          file \
+          g++ \
+          gawk \
+          gettext \
+          git \
+          java-propose-classpath \
+          libelf-dev \
+          libncurses5-dev \
+          libncursesw5-dev \
+          libssl-dev \
+          python3 \
+          python3-setuptools \
+          python3-dev \
+          python3-pip \
+          rsync \
+          subversion \
+          swig \
+          time \
+          unzip \
+          wget \
+          xsltproc \
+          zlib1g-dev \
+          jq \
+          curl \
+          ca-certificates \
+          zstd \
+          bc \
+          bzip2 \
+          flex \
+          gcc \
+          gcc-multilib \
+          gzip \
+          kmod \
+          libc6-dev \
+          libtool \
+          make \
+          patch \
+          perl \
+          pkg-config \
+          tar \
+          unzip \
+          which
+
+        # Install pyelftools for U-Boot build
+        pip3 install pyelftools --break-system-packages
+
+    - name: Get upstream release version
+      id: upstream
+      run: |
+        if [ -n "${{ github.event.inputs.upstream_release }}" ]; then
+          UPSTREAM_VERSION="${{ github.event.inputs.upstream_release }}"
+        elif [ "${{ github.event_name }}" = "release" ]; then
+          # Triggered by upstream release event (fork network)
+          UPSTREAM_VERSION="${{ github.event.release.tag_name }}"
+        else
+          # Get latest release from upstream (for manual triggers)
+          UPSTREAM_VERSION=$(curl -s https://api.github.com/repos/zeroclaw-labs/zeroclaw/releases/latest | jq -r '.tag_name')
+        fi
+        echo "upstream_version=$UPSTREAM_VERSION" >> $GITHUB_OUTPUT
+        echo "Upstream version: $UPSTREAM_VERSION"
+        
+        # Update Makefile with upstream version
+        if [ -n "$UPSTREAM_VERSION" ] && [ "$UPSTREAM_VERSION" != "null" ]; then
+          sed -i "s/PKG_VERSION:=.*/PKG_VERSION:=$UPSTREAM_VERSION/" Makefile
+          sed -i "s/PKG_SOURCE_DATE:=.*/PKG_SOURCE_DATE:=$(date +%Y-%m-%d)/" Makefile
+          echo "Updated Makefile to version $UPSTREAM_VERSION"
+        fi
+
+    - name: Install Rust toolchain
+      run: |
+        # Install latest stable Rust toolchain via rustup
+        # Ubuntu's rustc 1.75 is too old for edition 2024 dependencies
+        export RUSTUP_INIT_SKIP_PATH_CHECK=yes
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+        
+        # Source cargo environment and add musl target
+        . "$HOME/.cargo/env"
+        rustup target add aarch64-unknown-linux-musl
+        
+        # Verify Rust installation
+        rustc --version
+        cargo --version
+        rustup --version
+        
+        # Export PATH to GITHUB_ENV for subsequent steps
+        echo "CARGO_HOME=$HOME/.cargo" >> $GITHUB_ENV
+        echo "RUSTUP_HOME=$HOME/.rustup" >> $GITHUB_ENV
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+    - name: Download OpenWrt SDK
+      id: download
+      run: |
+        VERSION="${{ env.OPENWRT_VERSION }}"
+        echo "Downloading SDK for version: $VERSION"
+
+        case "$VERSION" in
+          "23.05.3")
+            FILE="openwrt-sdk-23.05.3-rockchip-armv8_gcc-12.3.0_musl.Linux-x86_64.tar.xz"
+            ;;
+          "24.10.2")
+            FILE="openwrt-sdk-24.10.2-rockchip-armv8_gcc-13.3.0_musl.Linux-x86_64.tar.zst"
+            ;;
+          *)
+            echo "Unsupported version: $VERSION"
+            exit 1
+            ;;
+        esac
+
+        URL="https://downloads.openwrt.org/releases/$VERSION/targets/${{ env.OPENWRT_TARGET }}/$FILE"
+        echo "Download URL: $URL"
+
+        wget --progress=dot:giga "$URL" -O "$FILE"
+
+        if [ ! -f "$FILE" ]; then
+          echo "Download failed"
+          exit 1
+        fi
+
+        echo "SDK_FILE=$FILE" >> $GITHUB_OUTPUT
+
+    - name: Extract SDK
+      run: |
+        FILE="${{ steps.download.outputs.SDK_FILE }}"
+        echo "Extracting $FILE..."
+
+        case "$FILE" in
+          *.tar.xz)
+            tar -xvf "$FILE"
+            ;;
+          *.tar.zst)
+            tar --zstd -xvf "$FILE"
+            ;;
+          *)
+            echo "Unknown file format: $FILE"
+            exit 1
+            ;;
+        esac
+
+        SDK_DIR=$(find . -maxdepth 1 -type d -name "openwrt-sdk-*" | head -1)
+        if [ -z "$SDK_DIR" ]; then
+          echo "Could not find extracted SDK directory"
+          ls -la
+          exit 1
+        fi
+
+        rm -rf openwrt
+        mv "$SDK_DIR" openwrt
+        echo "OpenWrt SDK ready at: $(pwd)/openwrt"
+
+    - name: Copy Makefile
+      run: |
+        mkdir -p openwrt/package/$PACKAGE_NAME
+
+        if [ -f "Makefile" ]; then
+          cp Makefile openwrt/package/$PACKAGE_NAME/
+          echo "Makefile copied"
+        else
+          echo "Makefile not found"
+          exit 1
+        fi
+        
+        # Copy files directory if it exists
+        if [ -d "files" ]; then
+          cp -r files openwrt/package/$PACKAGE_NAME/
+          echo "files directory copied"
+        fi
+
+    - name: Setup OpenWrt
+      run: |
+        cd openwrt
+
+        # Update and install feeds (ignore warnings about optional kernel modules)
+        ./scripts/feeds update -a 2>&1 | grep -v "does not exist" || true
+        ./scripts/feeds install -a 2>&1 | grep -v "does not exist" || true
+
+        echo "CONFIG_TARGET_rockchip=y" > .config
+        echo "CONFIG_TARGET_rockchip_armv8=y" >> .config
+        echo "CONFIG_PACKAGE_zeroclaw=m" >> .config
+
+        make defconfig
+
+    - name: Build package
+      run: |
+        cd openwrt
+        # Build package with maximum verbosity for debugging
+        # V=sc shows full command lines and output
+        set +e
+        make package/$PACKAGE_NAME/compile V=sc -j1 2>&1 | tee build.log
+        BUILD_STATUS=$$?
+        set -e
+        
+        # Check build result
+        if [ $$BUILD_STATUS -ne 0 ]; then
+          echo "Build failed! Showing last 200 lines of log:"
+          tail -n 200 build.log
+          exit 1
+        fi
+        
+        echo "Build completed successfully"
+
+    - name: Find IPK file
+      run: |
+        cd openwrt
+        echo "Searching for IPK files..."
+        find bin -name "*.ipk" -type f 2>/dev/null || echo "No IPK files found in bin/"
+        
+        # Try multiple search patterns
+        IPK_FILE=$(find bin -name "*${PACKAGE_NAME}*.ipk" -type f 2>/dev/null | head -1)
+        
+        # If not found, try alternative location
+        if [ -z "$IPK_FILE" ]; then
+          echo "Trying alternative search..."
+          IPK_FILE=$(find . -name "*zeroclaw*.ipk" -type f 2>/dev/null | head -1)
+        fi
+        
+        if [ -n "$IPK_FILE" ] && [ -f "$IPK_FILE" ]; then
+          echo "IPK_FILE=$IPK_FILE" >> $GITHUB_ENV
+          echo "Found IPK: $IPK_FILE"
+        else
+          echo "IPK not found. Listing bin/ directory:"
+          ls -la bin/ 2>/dev/null || echo "bin/ directory does not exist"
+          echo "Full build log:"
+          cat build.log
+          exit 1
+        fi
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: zeroclaw-${{ env.OPENWRT_VERSION }}
+        path: openwrt/${{ env.IPK_FILE }}
+
+    - name: Create GitHub Release
+      if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
+      uses: softprops/action-gh-release@v2
+      with:
+        name: ZeroClaw IPK ${{ steps.upstream.outputs.upstream_version }}
+        body: |
+          Auto-built IPK package for ZeroClaw.
+          
+          - ZeroClaw Version: ${{ steps.upstream.outputs.upstream_version }}
+          - OpenWrt SDK Version: ${{ env.OPENWRT_VERSION }}
+          - Target: ${{ env.OPENWRT_TARGET }}
+          - Built from: ${{ github.sha }}
+          
+          ## Installation
+          
+          ```bash
+          # Download the IPK file
+          scp zeroclaw*.ipk root@your-router:/tmp/
+          
+          # Install on OpenWrt
+          opkg install /tmp/zeroclaw*.ipk
+          ```
+        files: openwrt/${{ env.IPK_FILE }}
+        tag_name: ipk-${{ steps.upstream.outputs.upstream_version }}-${{ github.run_number }}
+        make_latest: true
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

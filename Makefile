@@ -26,11 +26,11 @@ include $(INCLUDE_DIR)/package.mk
 
 # Package definition for opkg
 define Package/$(PKG_NAME)
-  SECTION:=$(SECTION)
-  CATEGORY:=$(CATEGORY)
-  TITLE:=$(TITLE)
-  URL:=$(URL)
-  DEPENDS:=$(DEPENDS)
+	SECTION:=$(SECTION)
+	CATEGORY:=$(CATEGORY)
+	TITLE:=$(TITLE)
+	URL:=$(URL)
+	DEPENDS:=$(DEPENDS)
 endef
 
 # Package description

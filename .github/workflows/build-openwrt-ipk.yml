@@ -7,6 +7,21 @@ on:
   pull_request:
     branches: [ build-for-openwrt, master ]
   workflow_dispatch:
+    inputs:
+      upstream_release:
+        description: 'Upstream release tag that triggered this build'
+        required: false
+        default: ''
+  # Watch upstream zeroclaw releases
+  repository_dispatch:
+    types: [upstream-release]
+  schedule:
+    # Check for new releases every 6 hours
+    - cron: '0 */6 * * *'
+
+permissions:
+  contents: write
+  packages: write
 
 env:
   PACKAGE_NAME: "zeroclaw"
@@ -14,6 +29,7 @@ env:
   OPENWRT_TARGET: "rockchip/armv8"
   # Use Node.js 24 for JavaScript actions (Node.js 20 deprecated after June 2026)
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  UPSTREAM_REPO: "zeroclaw-labs/zeroclaw"
 
 jobs:
   build:
@@ -24,6 +40,27 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+
+    - name: Get upstream release version
+      id: upstream
+      run: |
+        if [ -n "${{ github.event.inputs.upstream_release }}" ]; then
+          UPSTREAM_VERSION="${{ github.event.inputs.upstream_release }}"
+        elif [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+          UPSTREAM_VERSION="${{ github.event.client_payload.release_tag }}"
+        else
+          # Get latest release from upstream
+          UPSTREAM_VERSION=$(curl -s https://api.github.com/repos/zeroclaw-labs/zeroclaw/releases/latest | jq -r '.tag_name')
+        fi
+        echo "upstream_version=$UPSTREAM_VERSION" >> $GITHUB_OUTPUT
+        echo "Upstream version: $UPSTREAM_VERSION"
+        
+        # Update Makefile with upstream version
+        if [ -n "$UPSTREAM_VERSION" ] && [ "$UPSTREAM_VERSION" != "null" ]; then
+          sed -i "s/PKG_VERSION:=.*/PKG_VERSION:=$UPSTREAM_VERSION/" Makefile
+          sed -i "s/PKG_SOURCE_DATE:=.*/PKG_SOURCE_DATE:=$(date +%Y-%m-%d)/" Makefile
+          echo "Updated Makefile to version $UPSTREAM_VERSION"
+        fi
 
     - name: Install dependencies
       run: |
@@ -242,3 +279,32 @@ jobs:
       with:
         name: zeroclaw-${{ env.OPENWRT_VERSION }}
         path: openwrt/${{ env.IPK_FILE }}
+
+    - name: Create GitHub Release
+      if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'repository_dispatch' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+      uses: softprops/action-gh-release@v2
+      with:
+        name: ZeroClaw IPK ${{ steps.upstream.outputs.upstream_version }}
+        body: |
+          Auto-built IPK package for ZeroClaw.
+          
+          - ZeroClaw Version: ${{ steps.upstream.outputs.upstream_version }}
+          - OpenWrt SDK Version: ${{ env.OPENWRT_VERSION }}
+          - Target: ${{ env.OPENWRT_TARGET }}
+          - Built from: ${{ github.sha }}
+          
+          ## Installation
+          
+          ```bash
+          # Download the IPK file
+          scp zeroclaw*.ipk root@your-router:/tmp/
+          
+          # Install on OpenWrt
+          opkg install /tmp/zeroclaw*.ipk
+          ```
+        files: openwrt/${{ env.IPK_FILE }}
+        tag_name: ipk-${{ steps.upstream.outputs.upstream_version }}-${{ github.run_number }}
+        make_latest: true
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

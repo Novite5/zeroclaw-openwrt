@@ -1,0 +1,59 @@
+name: Watch Upstream Releases
+
+on:
+  schedule:
+    # Check every hour for new releases
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  check-release:
+    runs-on: ubuntu-latest
+    outputs:
+      new_release: ${{ steps.check.outputs.new_release }}
+      release_tag: ${{ steps.check.outputs.release_tag }}
+    steps:
+      - name: Check latest upstream release
+        id: check
+        run: |
+          # Get latest release from zeroclaw-labs/zeroclaw
+          LATEST_RELEASE=$(curl -s https://api.github.com/repos/zeroclaw-labs/zeroclaw/releases/latest)
+          RELEASE_TAG=$(echo "$LATEST_RELEASE" | jq -r '.tag_name')
+          PUBLISHED_AT=$(echo "$LATEST_RELEASE" | jq -r '.published_at')
+          
+          # Get last checked time from environment or default to 24 hours ago
+          LAST_CHECKED="${{ github.event.repository.updated_at }}"
+          
+          # Check if release is newer than last check
+          if [[ "$PUBLISHED_AT" > "$LAST_CHECKED" ]]; then
+            echo "new_release=true" >> $GITHUB_OUTPUT
+            echo "release_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
+            echo "New release found: $RELEASE_TAG"
+          else
+            echo "new_release=false" >> $GITHUB_OUTPUT
+            echo "No new releases since last check"
+          fi
+
+  trigger-build:
+    needs: check-release
+    if: needs.check-release.outputs.new_release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger build workflow
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/build-openwrt-ipk.yml/dispatches \
+            -d '{
+              "ref": "build-for-openwrt",
+              "inputs": {
+                "upstream_release": "${{ needs.check-release.outputs.release_tag }}"
+              }
+            }'
+          echo "Triggered build for upstream release: ${{ needs.check-release.outputs.release_tag }}"

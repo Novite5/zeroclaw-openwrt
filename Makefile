@@ -26,11 +26,11 @@ include $(INCLUDE_DIR)/package.mk
 
 # Package definition for opkg
 define Package/$(PKG_NAME)
-	SECTION:=$(SECTION)
-	CATEGORY:=$(CATEGORY)
-	TITLE:=$(TITLE)
-	URL:=$(URL)
-	DEPENDS:=$(DEPENDS)
+	SECTION:=utils
+	CATEGORY:=Utilities
+	TITLE:=ZeroClaw - Fast, small, and fully autonomous AI assistant infrastructure
+	URL:=https://github.com/zeroclaw-labs/zeroclaw
+	DEPENDS:=+libc +libstdcpp +ca-bundle
 endef
 
 # Package description

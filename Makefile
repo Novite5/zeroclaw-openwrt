@@ -50,7 +50,7 @@ define Build/Configure
 	( \
 		cd $(PKG_BUILD_DIR); \
 		mkdir -p .cargo; \
-		echo '[target.$(RUSTC_TARGET_NAME)]' > .cargo/config.toml; \
+		echo '[target.aarch64-unknown-linux-musl]' > .cargo/config.toml; \
 		echo 'linker = "$(TARGET_CC)"' >> .cargo/config.toml; \
 		echo 'rustflags = ["-C", "link-arg=-Wl,--allow-multiple-definition"]' >> .cargo/config.toml; \
 	)
@@ -66,7 +66,7 @@ define Build/Compile
 		AR=$(TARGET_AR) \
 		RUSTFLAGS="-C linker=$(TARGET_CC)" \
 		cargo build \
-			--target $(RUSTC_TARGET_NAME) \
+			--target aarch64-unknown-linux-musl \
 			--release \
 			--locked; \
 	)
@@ -75,7 +75,7 @@ endef
 # Package/install: Commands to copy compiled files into the IPK
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/target/$(RUSTC_TARGET_NAME)/release/zeroclaw $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/target/aarch64-unknown-linux-musl/release/zeroclaw $(1)/usr/bin/
 
 	# Create config directory
 	$(INSTALL_DIR) $(1)/etc/zeroclaw

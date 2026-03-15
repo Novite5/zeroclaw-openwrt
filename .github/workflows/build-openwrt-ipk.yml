@@ -81,6 +81,12 @@ jobs:
         # Install pyelftools for U-Boot build
         pip3 install pyelftools --break-system-packages
 
+        # Add Rust target for cross-compilation
+        rustup target add aarch64-unknown-linux-musl 2>/dev/null || \
+          (curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain none && \
+           source $$HOME/.cargo/env && \
+           rustup target add aarch64-unknown-linux-musl)
+
     - name: Download OpenWrt SDK
       id: download
       run: |

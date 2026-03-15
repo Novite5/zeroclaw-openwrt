@@ -171,6 +171,12 @@ jobs:
           echo "Makefile not found"
           exit 1
         fi
+        
+        # Copy files directory if it exists
+        if [ -d "files" ]; then
+          cp -r files openwrt/package/$PACKAGE_NAME/
+          echo "files directory copied"
+        fi
 
     - name: Setup OpenWrt
       run: |

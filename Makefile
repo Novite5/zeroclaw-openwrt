@@ -82,13 +82,17 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/target/aarch64-unknown-linux-musl/release/zeroclaw $(1)/usr/bin/
 
-	# Create config directory
+	# Create config directory (files are copied by workflow to package dir)
 	$(INSTALL_DIR) $(1)/etc/zeroclaw
-	$(INSTALL_CONF) $(CURDIR)/files/config.toml $(1)/etc/zeroclaw/
+	if [ -f $(CURDIR)/files/config.toml ]; then \
+		$(INSTALL_CONF) $(CURDIR)/files/config.toml $(1)/etc/zeroclaw/; \
+	fi
 
 	# Create init script
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) $(CURDIR)/files/zeroclaw.init $(1)/etc/init.d/zeroclaw
+	if [ -f $(CURDIR)/files/zeroclaw.init ]; then \
+		$(INSTALL_BIN) $(CURDIR)/files/zeroclaw.init $(1)/etc/init.d/zeroclaw; \
+	fi
 
 	# Create service enable/disable symlinks
 	$(INSTALL_DIR) $(1)/etc/rc.d

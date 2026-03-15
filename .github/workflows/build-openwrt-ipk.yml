@@ -81,14 +81,13 @@ jobs:
         # Install pyelftools for U-Boot build
         pip3 install pyelftools --break-system-packages
 
-        # Add Rust target for cross-compilation using rustup (if available)
-        # Ubuntu's rustc package doesn't include rustup, so we use rustc directly
-        if command -v rustup >/dev/null 2>&1; then
-          rustup target add aarch64-unknown-linux-musl || true
-        else
-          echo "rustup not available, using system rustc"
-          echo "Note: aarch64-unknown-linux-musl target should be pre-installed with rustc package"
-        fi
+        # Install latest stable Rust toolchain via rustup
+        # Ubuntu's rustc 1.75 is too old for edition 2024 dependencies
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+        
+        # Add musl target for cross-compilation
+        rustup target add aarch64-unknown-linux-musl
 
     - name: Download OpenWrt SDK
       id: download

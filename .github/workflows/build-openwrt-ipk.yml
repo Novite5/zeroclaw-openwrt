@@ -83,10 +83,11 @@ jobs:
 
         # Install latest stable Rust toolchain via rustup
         # Ubuntu's rustc 1.75 is too old for edition 2024 dependencies
+        export RUSTUP_INIT_SKIP_PATH_CHECK=yes
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
-        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
         
-        # Add musl target for cross-compilation
+        # Source cargo environment and add musl target
+        . "$HOME/.cargo/env"
         rustup target add aarch64-unknown-linux-musl
 
     - name: Download OpenWrt SDK

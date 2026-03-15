@@ -94,6 +94,11 @@ jobs:
         rustc --version
         cargo --version
         rustup --version
+        
+        # Export PATH to GITHUB_ENV for subsequent steps
+        echo "CARGO_HOME=$HOME/.cargo" >> $GITHUB_ENV
+        echo "RUSTUP_HOME=$HOME/.rustup" >> $GITHUB_ENV
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
     - name: Download OpenWrt SDK
       id: download

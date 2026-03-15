@@ -62,12 +62,15 @@ endef
 define Build/Compile
 	( \
 		cd $(PKG_BUILD_DIR); \
-		CARGO_HOME=$(PKG_BUILD_DIR)/.cargo \
+		mkdir -p .cargo; \
+		echo '[target.aarch64-unknown-linux-musl]' > .cargo/config.toml; \
+		echo 'linker = "$(TARGET_CC)"' >> .cargo/config.toml; \
+		echo 'rustflags = ["-C", "link-arg=-Wl,--allow-multiple-definition"]' >> .cargo/config.toml; \
+		rm -f Cargo.lock; \
 		CC=$(TARGET_CC) \
 		CXX=$(TARGET_CXX) \
 		AR=$(TARGET_AR) \
 		RUSTFLAGS="-C linker=$(TARGET_CC)" \
-		rm -f Cargo.lock; \
 		cargo build \
 			--target aarch64-unknown-linux-musl \
 			--release; \

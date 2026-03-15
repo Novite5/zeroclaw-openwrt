@@ -10,6 +10,8 @@ PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/zeroclaw-labs/zeroclaw.git
 PKG_SOURCE_DATE:=2026-03-09
 PKG_SOURCE_VERSION:=master
+PKG_SOURCE_SUBDIR:=zeroclaw-$(PKG_VERSION)
+PKG_SOURCE:=zeroclaw-$(PKG_VERSION).tar.gz
 PKG_MIRROR_HASH:=skip
 
 # Package Configuration

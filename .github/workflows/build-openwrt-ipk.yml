@@ -89,6 +89,11 @@ jobs:
         # Source cargo environment and add musl target
         . "$HOME/.cargo/env"
         rustup target add aarch64-unknown-linux-musl
+        
+        # Verify Rust installation
+        rustc --version
+        cargo --version
+        rustup --version
 
     - name: Download OpenWrt SDK
       id: download

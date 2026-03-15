@@ -61,6 +61,15 @@ jobs:
           cp /tmp/our-files/Makefile . 2>/dev/null || true
           cp -r /tmp/our-files/files . 2>/dev/null || true
           
+          # Delete upstream workflow files (we can't push workflow files with GITHUB_TOKEN)
+          find .github/workflows/ -type f ! -name "build-openwrt-ipk.yml" ! -name "sync-upstream.yml" -delete 2>/dev/null || true
+          
+          # Remove other upstream files we don't need
+          rm -rf .github/ISSUE_TEMPLATE/ 2>/dev/null || true
+          rm -rf .github/PULL_REQUEST_TEMPLATE* 2>/dev/null || true
+          rm -f .github/dependabot.yml 2>/dev/null || true
+          rm -f .github/FUNDING.yml 2>/dev/null || true
+          
           # Check for changes
           if [ -n "$(git status --porcelain)" ]; then
             git add -A

@@ -1,5 +1,30 @@
 # Upstream Sync Strategy
 
+## Required Setup
+
+### Create Personal Access Token (PAT)
+
+The sync workflow needs a PAT to push workflow files. Here's how to create one:
+
+1. Go to GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)
+2. Click "Generate new token (classic)"
+3. Select scopes:
+   - ✅ `repo` (Full control of private repositories)
+   - ✅ `workflow` (Update GitHub Action workflows)
+4. Generate token and copy it
+5. Go to your fork repo → Settings → Secrets and variables → Actions
+6. Click "New repository secret"
+7. Add:
+   - Name: `PAT_TOKEN`
+   - Value: (paste your token)
+8. Click "Add secret"
+
+### Why PAT is Needed
+
+GitHub Actions' default `GITHUB_TOKEN` cannot push workflow files due to security restrictions. A PAT with `workflow` scope is required to:
+- Push changes to `.github/workflows/` directory
+- Trigger downstream workflows after sync
+
 ## Branch Structure
 
 ```

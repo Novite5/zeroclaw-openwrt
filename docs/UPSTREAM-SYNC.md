@@ -2,28 +2,28 @@
 
 ## Required Setup
 
-### Create Personal Access Token (PAT)
+**No PAT required!** This workflow uses GitHub API to trigger builds, which works with the default `GITHUB_TOKEN`.
 
-The sync workflow needs a PAT to push workflow files. Here's how to create one:
+## How It Works
 
-1. Go to GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)
-2. Click "Generate new token (classic)"
-3. Select scopes:
-   - ✅ `repo` (Full control of private repositories)
-   - ✅ `workflow` (Update GitHub Action workflows)
-4. Generate token and copy it
-5. Go to your fork repo → Settings → Secrets and variables → Actions
-6. Click "New repository secret"
-7. Add:
-   - Name: `PAT_TOKEN`
-   - Value: (paste your token)
-8. Click "Add secret"
+### Sync Process
 
-### Why PAT is Needed
+1. **Sync workflow** runs every 6 hours
+2. Fetches upstream changes from `zeroclaw-labs/zeroclaw`
+3. Preserves our workflow files
+4. Pushes to `build-sync` branch (not `build-for-openwrt`)
+5. Triggers build workflow via GitHub API
 
-GitHub Actions' default `GITHUB_TOKEN` cannot push workflow files due to security restrictions. A PAT with `workflow` scope is required to:
-- Push changes to `.github/workflows/` directory
-- Trigger downstream workflows after sync
+### Why Two Branches?
+
+| Branch | Purpose |
+|--------|---------|
+| `build-for-openwrt` | Your main working branch |
+| `build-sync` | Temporary branch for upstream sync (auto-created) |
+
+This avoids the GITHUB_TOKEN workflow push restriction by:
+1. Only pushing non-workflow files to `build-sync`
+2. Using GitHub API to trigger the build workflow
 
 ## Branch Structure
 

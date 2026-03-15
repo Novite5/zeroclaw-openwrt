@@ -2,10 +2,10 @@ name: Build OpenWrt IPK (sh compatible)
 
 on:
   push:
-    branches: [ build-for-openwrt ]
+    branches: [ build-for-openwrt, build-sync ]
     tags: [ 'v*' ]
   pull_request:
-    branches: [ build-for-openwrt ]
+    branches: [ build-for-openwrt, build-sync ]
   workflow_dispatch:
     inputs:
       upstream_release:

@@ -37,28 +37,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Get upstream release version
-      id: upstream
-      run: |
-        if [ -n "${{ github.event.inputs.upstream_release }}" ]; then
-          UPSTREAM_VERSION="${{ github.event.inputs.upstream_release }}"
-        elif [ "${{ github.event_name }}" = "release" ]; then
-          # Triggered by upstream release event (fork network)
-          UPSTREAM_VERSION="${{ github.event.release.tag_name }}"
-        else
-          # Get latest release from upstream (for manual/schedule triggers)
-          UPSTREAM_VERSION=$(curl -s https://api.github.com/repos/zeroclaw-labs/zeroclaw/releases/latest | jq -r '.tag_name')
-        fi
-        echo "upstream_version=$UPSTREAM_VERSION" >> $GITHUB_OUTPUT
-        echo "Upstream version: $UPSTREAM_VERSION"
-        
-        # Update Makefile with upstream version
-        if [ -n "$UPSTREAM_VERSION" ] && [ "$UPSTREAM_VERSION" != "null" ]; then
-          sed -i "s/PKG_VERSION:=.*/PKG_VERSION:=$UPSTREAM_VERSION/" Makefile
-          sed -i "s/PKG_SOURCE_DATE:=.*/PKG_SOURCE_DATE:=$(date +%Y-%m-%d)/" Makefile
-          echo "Updated Makefile to version $UPSTREAM_VERSION"
-        fi
-
     - name: Install dependencies
       run: |
         apt-get update
@@ -108,13 +86,35 @@ jobs:
           pkg-config \
           tar \
           unzip \
-          which \
-          rustc \
-          cargo
+          which
 
         # Install pyelftools for U-Boot build
         pip3 install pyelftools --break-system-packages
 
+    - name: Get upstream release version
+      id: upstream
+      run: |
+        if [ -n "${{ github.event.inputs.upstream_release }}" ]; then
+          UPSTREAM_VERSION="${{ github.event.inputs.upstream_release }}"
+        elif [ "${{ github.event_name }}" = "release" ]; then
+          # Triggered by upstream release event (fork network)
+          UPSTREAM_VERSION="${{ github.event.release.tag_name }}"
+        else
+          # Get latest release from upstream (for manual triggers)
+          UPSTREAM_VERSION=$(curl -s https://api.github.com/repos/zeroclaw-labs/zeroclaw/releases/latest | jq -r '.tag_name')
+        fi
+        echo "upstream_version=$UPSTREAM_VERSION" >> $GITHUB_OUTPUT
+        echo "Upstream version: $UPSTREAM_VERSION"
+        
+        # Update Makefile with upstream version
+        if [ -n "$UPSTREAM_VERSION" ] && [ "$UPSTREAM_VERSION" != "null" ]; then
+          sed -i "s/PKG_VERSION:=.*/PKG_VERSION:=$UPSTREAM_VERSION/" Makefile
+          sed -i "s/PKG_SOURCE_DATE:=.*/PKG_SOURCE_DATE:=$(date +%Y-%m-%d)/" Makefile
+          echo "Updated Makefile to version $UPSTREAM_VERSION"
+        fi
+
+    - name: Install Rust toolchain
+      run: |
         # Install latest stable Rust toolchain via rustup
         # Ubuntu's rustc 1.75 is too old for edition 2024 dependencies
         export RUSTUP_INIT_SKIP_PATH_CHECK=yes

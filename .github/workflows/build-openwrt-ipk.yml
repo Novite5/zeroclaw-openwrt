@@ -12,12 +12,8 @@ on:
         description: 'Upstream release tag that triggered this build'
         required: false
         default: ''
-  # Watch upstream zeroclaw releases
-  repository_dispatch:
-    types: [upstream-release]
-  schedule:
-    # Check for new releases every 6 hours
-    - cron: '0 */6 * * *'
+  release:
+    types: [published]
 
 permissions:
   contents: write
@@ -46,10 +42,11 @@ jobs:
       run: |
         if [ -n "${{ github.event.inputs.upstream_release }}" ]; then
           UPSTREAM_VERSION="${{ github.event.inputs.upstream_release }}"
-        elif [ "${{ github.event_name }}" = "repository_dispatch" ]; then
-          UPSTREAM_VERSION="${{ github.event.client_payload.release_tag }}"
+        elif [ "${{ github.event_name }}" = "release" ]; then
+          # Triggered by upstream release event (fork network)
+          UPSTREAM_VERSION="${{ github.event.release.tag_name }}"
         else
-          # Get latest release from upstream
+          # Get latest release from upstream (for manual/schedule triggers)
           UPSTREAM_VERSION=$(curl -s https://api.github.com/repos/zeroclaw-labs/zeroclaw/releases/latest | jq -r '.tag_name')
         fi
         echo "upstream_version=$UPSTREAM_VERSION" >> $GITHUB_OUTPUT
@@ -281,7 +278,7 @@ jobs:
         path: openwrt/${{ env.IPK_FILE }}
 
     - name: Create GitHub Release
-      if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'repository_dispatch' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+      if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
       uses: softprops/action-gh-release@v2
       with:
         name: ZeroClaw IPK ${{ steps.upstream.outputs.upstream_version }}

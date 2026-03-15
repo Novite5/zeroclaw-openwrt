@@ -20,6 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: write
+      pull-requests: write
     
     steps:
       - name: Checkout repository
@@ -27,6 +29,7 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
       
       - name: Install dependencies
         run: |
@@ -52,20 +55,32 @@ jobs:
           BRANCH="${{ github.event.inputs.sync_branch || 'master' }}"
           echo "Syncing branch: $BRANCH"
           
-          # Checkout our build-for-openwrt branch first
-          git checkout build-for-openwrt || git checkout -b build-for-openwrt
+          # Configure git with bot user
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           
           # Fetch upstream
-          git fetch upstream "$BRANCH"
+          git remote add upstream https://github.com/zeroclaw-labs/zeroclaw.git 2>/dev/null || true
+          git fetch upstream "$BRANCH" --tags
           
-          # Merge upstream changes
+          # Create temp branch with upstream content
+          git checkout -B temp-upstream upstream/"$BRANCH"
+          
+          # Save our workflow files
+          mkdir -p /tmp/our-files
+          git checkout build-for-openwrt -- .github/workflows/ Makefile files/ 2>/dev/null && \
+            cp -r .github/workflows /tmp/our-files/ && \
+            cp Makefile /tmp/our-files/ && \
+            cp -r files /tmp/our-files/ 2>/dev/null || true
+          
+          # Switch back to build-for-openwrt and merge
+          git checkout build-for-openwrt
           git merge upstream/"$BRANCH" --no-commit || true
           
-          # Restore our workflow files
-          git checkout HEAD -- .github/workflows/build-openwrt-ipk.yml 2>/dev/null || true
-          git checkout HEAD -- .github/workflows/sync-upstream.yml 2>/dev/null || true
-          git checkout HEAD -- Makefile 2>/dev/null || true
-          git checkout HEAD -- files/ 2>/dev/null || true
+          # Restore our files
+          cp -r /tmp/our-files/workflows .github/ 2>/dev/null || true
+          cp /tmp/our-files/Makefile . 2>/dev/null || true
+          cp -r /tmp/our-files/files . 2>/dev/null || true
           
           # Check if there are changes to commit
           if [ -n "$(git status --porcelain)" ]; then
@@ -84,6 +99,9 @@ jobs:
             echo "changes_detected=false" >> $GITHUB_OUTPUT
             echo "No new upstream changes"
           fi
+          
+          # Cleanup
+          git branch -D temp-upstream 2>/dev/null || true
       
       - name: Create PR if there are conflicts
         if: steps.sync.outputs.changes_detected == 'true' && github.event_name == 'schedule'

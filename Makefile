@@ -65,6 +65,7 @@ define Build/Compile
 		CXX=$(TARGET_CXX) \
 		AR=$(TARGET_AR) \
 		RUSTFLAGS="-C linker=$(TARGET_CC)" \
+		rm -f Cargo.lock; \
 		cargo build \
 			--target aarch64-unknown-linux-musl \
 			--release; \

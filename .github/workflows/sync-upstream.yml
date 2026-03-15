@@ -30,7 +30,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          apt-get update && apt-get install -y curl jq git
+          sudo apt-get update && sudo apt-get install -y curl jq git
       
       - name: Configure git
         run: |

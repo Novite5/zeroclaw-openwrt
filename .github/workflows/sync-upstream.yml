@@ -94,3 +94,39 @@ jobs:
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/${{ github.repository }}/actions/workflows/build-openwrt-ipk.yml/dispatches \
             -d '{"ref":"build-sync"}'
+
+      - name: Check upstream release
+        id: release-check
+        run: |
+          # Get latest upstream release
+          LATEST_RELEASE=$(curl -s https://api.github.com/repos/zeroclaw-labs/zeroclaw/releases/latest)
+          RELEASE_TAG=$(echo "$LATEST_RELEASE" | jq -r '.tag_name')
+          PUBLISHED_AT=$(echo "$LATEST_RELEASE" | jq -r '.published_at')
+          
+          echo "Latest upstream release: $RELEASE_TAG (published: $PUBLISHED_AT)"
+          echo "release_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
+          echo "published_at=$PUBLISHED_AT" >> $GITHUB_OUTPUT
+          
+          # Check if we need to build (check if local tag exists)
+          if ! git rev-parse "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "New release detected, will trigger build"
+            echo "new_release=true" >> $GITHUB_OUTPUT
+          else
+            echo "Release already synced"
+            echo "new_release=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Trigger build for release
+        if: steps.release-check.outputs.new_release == 'true'
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/build-openwrt-ipk.yml/dispatches \
+            -d '{
+              "ref": "build-for-openwrt",
+              "inputs": {
+                "upstream_release": "${{ steps.release-check.outputs.release_tag }}"
+              }
+            }'

@@ -73,7 +73,8 @@ define Build/Compile
 		RUSTFLAGS="-C linker=$(TARGET_CC)" \
 		cargo build \
 			--target aarch64-unknown-linux-musl \
-			--release; \
+			--release \
+			--features channel-lark; \
 	)
 endef
 

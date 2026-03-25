@@ -4,13 +4,14 @@ on:
   workflow_run:
     workflows: ["Sync Upstream Changes"]
     types: [completed]
-    branches: [build-sync]
   workflow_dispatch:
     inputs:
       upstream_release:
         description: 'Upstream release tag that triggered this build'
         required: false
         default: ''
+  push:
+    branches: [ build-sync ]
 
 permissions:
   contents: write

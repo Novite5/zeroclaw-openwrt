@@ -130,20 +130,16 @@ jobs:
           RESPONSE=$(curl -sL --retry 2 --max-time 30 \
             https://api.github.com/repos/zeroclaw-labs/zeroclaw/releases/latest)
           
-          # Check if response is valid JSON
-          if ! echo "$RESPONSE" | jq -e '.tag_name' >/dev/null 2>&1; then
-            echo "Failed to parse release response"
-            echo "Response: $RESPONSE" | head -c 500
-            echo "should_create_release=$SHOULD_CREATE" >> $GITHUB_OUTPUT
-            exit 0
-          fi
+          echo "Response length: ${#RESPONSE}"
           
-          RELEASE_TAG=$(echo "$RESPONSE" | jq -r '.tag_name // empty')
+          # Try to extract tag_name using grep/sed as fallback
+          RELEASE_TAG=$(echo "$RESPONSE" | grep -o '"tag_name"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"\([^"]*\)"$/\1/')
           
           echo "Latest upstream release: $RELEASE_TAG"
           
           if [ -z "$RELEASE_TAG" ]; then
-            echo "No upstream release found"
+            echo "No upstream release found or failed to parse"
+            echo "Response preview: $(echo "$RESPONSE" | head -c 200)"
             echo "should_create_release=$SHOULD_CREATE" >> $GITHUB_OUTPUT
             exit 0
           fi
@@ -158,8 +154,10 @@ jobs:
           if [ "$HTTP_STATUS" == "404" ]; then
             echo "Release $RELEASE_TAG doesn't exist in our repo, will create"
             SHOULD_CREATE="true"
+          elif [ "$HTTP_STATUS" == "200" ]; then
+            echo "Release $RELEASE_TAG already exists"
           else
-            echo "Release $RELEASE_TAG already exists (HTTP: $HTTP_STATUS)"
+            echo "Unexpected HTTP status: $HTTP_STATUS"
           fi
         else
           echo "No release creation needed for this event"

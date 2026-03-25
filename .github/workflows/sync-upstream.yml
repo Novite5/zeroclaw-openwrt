@@ -98,6 +98,8 @@ jobs:
       - name: Check upstream release
         id: release-check
         run: |
+          REPO="${{ github.repository }}"
+          
           # Get latest upstream release
           LATEST_RELEASE=$(curl -s https://api.github.com/repos/zeroclaw-labs/zeroclaw/releases/latest)
           RELEASE_TAG=$(echo "$LATEST_RELEASE" | jq -r '.tag_name')
@@ -107,12 +109,16 @@ jobs:
           echo "release_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
           echo "published_at=$PUBLISHED_AT" >> $GITHUB_OUTPUT
           
-          # Check if we need to build (check if local tag exists)
-          if ! git rev-parse "$RELEASE_TAG" >/dev/null 2>&1; then
+          # Check if our repo already has a release for this tag
+          RELEASE_CHECK=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/$REPO/releases/tags/$RELEASE_TAG")
+          RELEASE_ID=$(echo "$RELEASE_CHECK" | jq -r '.id')
+          
+          if [ "$RELEASE_ID" == "null" ]; then
             echo "New release detected, will trigger build"
             echo "new_release=true" >> $GITHUB_OUTPUT
           else
-            echo "Release already synced"
+            echo "Release already exists (ID: $RELEASE_ID)"
             echo "new_release=false" >> $GITHUB_OUTPUT
           fi
 

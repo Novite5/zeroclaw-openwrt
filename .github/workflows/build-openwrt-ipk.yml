@@ -122,10 +122,10 @@ jobs:
         # Only create release for:
         # 1. Manual workflow_dispatch with upstream_release input
         # 2. Upstream release event
-        # 3. workflow_run triggered by sync (check if upstream has release)
-        
+        # 3. workflow_run triggered by sync (if our repo doesn't have release yet)
+
         SHOULD_CREATE="false"
-        
+
         if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.upstream_release }}" ]; then
           SHOULD_CREATE="true"
         elif [ "${{ github.event_name }}" = "release" ]; then
@@ -135,16 +135,26 @@ jobs:
           LATEST_RELEASE=$(curl -s https://api.github.com/repos/zeroclaw-labs/zeroclaw/releases/latest)
           RELEASE_TAG=$(echo "$LATEST_RELEASE" | jq -r '.tag_name')
           
+          if [ -z "$RELEASE_TAG" ] || [ "$RELEASE_TAG" == "null" ]; then
+            echo "No upstream release found"
+            echo "should_create_release=$SHOULD_CREATE" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
           # Check if our repo already has this release
           RELEASE_CHECK=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/releases/tags/$RELEASE_TAG")
           RELEASE_ID=$(echo "$RELEASE_CHECK" | jq -r '.id')
           
-          if [ "$RELEASE_ID" != "null" ]; then
+          # Create release only if it doesn't exist in our repo yet
+          if [ "$RELEASE_ID" == "null" ]; then
+            echo "Upstream release $RELEASE_TAG not found in our repo, will create"
             SHOULD_CREATE="true"
+          else
+            echo "Release $RELEASE_TAG already exists in our repo (ID: $RELEASE_ID)"
           fi
         fi
-        
+
         echo "should_create_release=$SHOULD_CREATE" >> $GITHUB_OUTPUT
 
     - name: Install Rust toolchain

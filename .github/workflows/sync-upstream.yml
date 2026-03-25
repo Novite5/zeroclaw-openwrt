@@ -75,16 +75,11 @@ jobs:
             git add -A
             git commit -m "chore: sync upstream $BRANCH" || true
 
-            # Push to build-for-openwrt branch
-            git push origin HEAD:build-for-openwrt --force
+            # Push to build-sync branch (temporary branch for builds)
+            git branch -D build-sync 2>/dev/null || true
+            git checkout -b build-sync
+            git push origin build-sync --force
             echo "changes_detected=true" >> $GITHUB_OUTPUT
           else
             echo "changes_detected=false" >> $GITHUB_OUTPUT
           fi
-      
-      - name: Trigger build on synced branch
-        if: steps.sync.outputs.changes_detected == 'true'
-        run: |
-          # Trigger build workflow via workflow_run event (automatic)
-          # No need to pass parameters - build workflow will detect release itself
-          echo "Build will be triggered automatically by workflow_run event"

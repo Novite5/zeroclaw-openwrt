@@ -4,19 +4,13 @@ on:
   workflow_run:
     workflows: ["Sync Upstream Changes"]
     types: [completed]
-  push:
-    branches: [ build-for-openwrt, build-sync ]
-    tags: [ 'v*' ]
-  pull_request:
-    branches: [ build-for-openwrt, build-sync ]
+    branches: [build-sync]
   workflow_dispatch:
     inputs:
       upstream_release:
         description: 'Upstream release tag that triggered this build'
         required: false
         default: ''
-  release:
-    types: [published]
 
 permissions:
   contents: write
@@ -99,9 +93,6 @@ jobs:
       run: |
         if [ -n "${{ github.event.inputs.upstream_release }}" ]; then
           UPSTREAM_VERSION="${{ github.event.inputs.upstream_release }}"
-        elif [ "${{ github.event_name }}" = "release" ]; then
-          # Triggered by upstream release event (fork network)
-          UPSTREAM_VERSION="${{ github.event.release.tag_name }}"
         else
           # Get latest release from upstream (for workflow_run or manual triggers)
           UPSTREAM_VERSION=$(curl -s https://api.github.com/repos/zeroclaw-labs/zeroclaw/releases/latest | jq -r '.tag_name')
@@ -120,19 +111,16 @@ jobs:
       id: release-check
       run: |
         echo "Event name: ${{ github.event_name }}"
+        echo "Upstream release input: '${{ github.event.inputs.upstream_release }}'"
         
         # Create release if:
         # 1. Manual workflow_dispatch with upstream_release input
-        # 2. Upstream release event
-        # 3. workflow_run from sync (detect release directly)
+        # 2. workflow_run from sync (detect release directly)
         
         SHOULD_CREATE="false"
         
         if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.upstream_release }}" ]; then
           echo "Manual dispatch with release tag: ${{ github.event.inputs.upstream_release }}"
-          SHOULD_CREATE="true"
-        elif [ "${{ github.event_name }}" = "release" ]; then
-          echo "Upstream release event"
           SHOULD_CREATE="true"
         elif [ "${{ github.event_name }}" = "workflow_run" ]; then
           echo "workflow_run from sync, checking upstream release..."

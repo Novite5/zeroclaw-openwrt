@@ -120,26 +120,50 @@ jobs:
       id: release-check
       run: |
         echo "Event name: ${{ github.event_name }}"
-        echo "Upstream release input: ${{ github.event.inputs.upstream_release }}"
         
         # Create release if:
         # 1. Manual workflow_dispatch with upstream_release input
         # 2. Upstream release event
-        # 3. workflow_run from sync (has upstream_release input)
+        # 3. workflow_run from sync (detect release directly)
         
         SHOULD_CREATE="false"
         
         if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.upstream_release }}" ]; then
-          echo "Manual dispatch with release tag"
+          echo "Manual dispatch with release tag: ${{ github.event.inputs.upstream_release }}"
           SHOULD_CREATE="true"
         elif [ "${{ github.event_name }}" = "release" ]; then
           echo "Upstream release event"
           SHOULD_CREATE="true"
-        elif [ -n "${{ github.event.inputs.upstream_release }}" ]; then
-          echo "Sync-triggered build with release tag"
-          SHOULD_CREATE="true"
+        elif [ "${{ github.event_name }}" = "workflow_run" ]; then
+          echo "workflow_run from sync, checking upstream release..."
+          
+          # Get latest upstream release
+          LATEST_RELEASE=$(curl -s https://api.github.com/repos/zeroclaw-labs/zeroclaw/releases/latest)
+          RELEASE_TAG=$(echo "$LATEST_RELEASE" | jq -r '.tag_name')
+          
+          echo "Latest upstream release: $RELEASE_TAG"
+          
+          if [ -z "$RELEASE_TAG" ] || [ "$RELEASE_TAG" == "null" ]; then
+            echo "No upstream release found"
+            echo "should_create_release=$SHOULD_CREATE" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Check if our repo already has this release (use HTTP status code)
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/$RELEASE_TAG")
+          
+          echo "Release check HTTP status: $HTTP_STATUS"
+          
+          if [ "$HTTP_STATUS" == "404" ]; then
+            echo "Release $RELEASE_TAG doesn't exist in our repo, will create"
+            SHOULD_CREATE="true"
+          else
+            echo "Release $RELEASE_TAG already exists (HTTP: $HTTP_STATUS)"
+          fi
         else
-          echo "No release creation needed"
+          echo "No release creation needed for this event"
         fi
         
         echo "should_create_release=$SHOULD_CREATE" >> $GITHUB_OUTPUT

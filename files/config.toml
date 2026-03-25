@@ -1,0 +1,57 @@
+# ZeroClaw configuration for OpenWrt
+# Default configuration file
+
+# API configuration
+api_key = ""
+default_provider = "openrouter"
+default_model = "anthropic/claude-sonnet-4-6"
+default_temperature = 0.7
+
+# Memory configuration
+[memory]
+backend = "sqlite"
+auto_save = true
+embedding_provider = "none"
+vector_weight = 0.7
+keyword_weight = 0.3
+
+# Gateway configuration
+[gateway]
+port = 42617
+host = "127.0.0.1"
+require_pairing = true
+allow_public_bind = false
+
+# Autonomy configuration
+[autonomy]
+level = "supervised"
+workspace_only = true
+allowed_commands = ["git", "npm", "cargo", "ls", "cat", "grep"]
+forbidden_paths = ["/etc", "/root", "/proc", "/sys", "~/.ssh", "~/.gnupg", "~/.aws"]
+
+# Runtime configuration
+[runtime]
+kind = "native"
+
+# Tunnel configuration (disabled by default)
+[tunnel]
+provider = "none"
+
+# Secrets configuration
+[secrets]
+encrypt = true
+
+# Browser configuration (disabled by default)
+[browser]
+enabled = false
+allowed_domains = ["docs.rs"]
+backend = "agent_browser"
+native_headless = true
+native_webdriver_url = "http://127.0.0.1:9515"
+
+# Identity configuration
+[identity]
+format = "openclaw"
+
+# Note: Users should run 'zeroclaw onboard' after installation
+# to complete the setup with their API keys and preferences.

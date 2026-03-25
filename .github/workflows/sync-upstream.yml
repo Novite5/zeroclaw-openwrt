@@ -2,8 +2,8 @@ name: Sync Upstream Changes
 
 on:
   schedule:
-    # Sync every 6 hours
-    - cron: '0 */6 * * *'
+    # Sync every day at 06:00 UTC
+    - cron: '0 6 * * *'
   workflow_dispatch:
     inputs:
       sync_branch:
@@ -74,11 +74,9 @@ jobs:
           if [ -n "$(git status --porcelain)" ]; then
             git add -A
             git commit -m "chore: sync upstream $BRANCH" || true
-            
-            # Push to a NEW branch (not workflow files)
-            git branch -D build-sync 2>/dev/null || true
-            git checkout -b build-sync
-            git push origin build-sync --force
+
+            # Push to build-for-openwrt branch
+            git push origin HEAD:build-for-openwrt --force
             echo "changes_detected=true" >> $GITHUB_OUTPUT
           else
             echo "changes_detected=false" >> $GITHUB_OUTPUT
@@ -94,45 +92,3 @@ jobs:
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/${{ github.repository }}/actions/workflows/build-openwrt-ipk.yml/dispatches \
             -d '{"ref":"build-sync"}'
-
-      - name: Check upstream release
-        id: release-check
-        run: |
-          REPO="${{ github.repository }}"
-          
-          # Get latest upstream release
-          LATEST_RELEASE=$(curl -s https://api.github.com/repos/zeroclaw-labs/zeroclaw/releases/latest)
-          RELEASE_TAG=$(echo "$LATEST_RELEASE" | jq -r '.tag_name')
-          PUBLISHED_AT=$(echo "$LATEST_RELEASE" | jq -r '.published_at')
-          
-          echo "Latest upstream release: $RELEASE_TAG (published: $PUBLISHED_AT)"
-          echo "release_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
-          echo "published_at=$PUBLISHED_AT" >> $GITHUB_OUTPUT
-          
-          # Check if our repo already has a release for this tag
-          RELEASE_CHECK=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/$REPO/releases/tags/$RELEASE_TAG")
-          RELEASE_ID=$(echo "$RELEASE_CHECK" | jq -r '.id')
-          
-          if [ "$RELEASE_ID" == "null" ]; then
-            echo "New release detected, will trigger build"
-            echo "new_release=true" >> $GITHUB_OUTPUT
-          else
-            echo "Release already exists (ID: $RELEASE_ID)"
-            echo "new_release=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Trigger build for release
-        if: steps.release-check.outputs.new_release == 'true'
-        run: |
-          curl -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/${{ github.repository }}/actions/workflows/build-openwrt-ipk.yml/dispatches \
-            -d '{
-              "ref": "build-for-openwrt",
-              "inputs": {
-                "upstream_release": "${{ steps.release-check.outputs.release_tag }}"
-              }
-            }'

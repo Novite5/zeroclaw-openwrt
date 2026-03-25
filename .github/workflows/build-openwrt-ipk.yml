@@ -1,6 +1,9 @@
 name: Build OpenWrt IPK (sh compatible)
 
 on:
+  workflow_run:
+    workflows: ["Sync Upstream Changes"]
+    types: [completed]
   push:
     branches: [ build-for-openwrt, build-sync ]
     tags: [ 'v*' ]
@@ -100,18 +103,49 @@ jobs:
           # Triggered by upstream release event (fork network)
           UPSTREAM_VERSION="${{ github.event.release.tag_name }}"
         else
-          # Get latest release from upstream (for manual triggers)
+          # Get latest release from upstream (for workflow_run or manual triggers)
           UPSTREAM_VERSION=$(curl -s https://api.github.com/repos/zeroclaw-labs/zeroclaw/releases/latest | jq -r '.tag_name')
         fi
         echo "upstream_version=$UPSTREAM_VERSION" >> $GITHUB_OUTPUT
         echo "Upstream version: $UPSTREAM_VERSION"
-        
+
         # Update Makefile with upstream version
         if [ -n "$UPSTREAM_VERSION" ] && [ "$UPSTREAM_VERSION" != "null" ]; then
           sed -i "s/PKG_VERSION:=.*/PKG_VERSION:=$UPSTREAM_VERSION/" Makefile
           sed -i "s/PKG_SOURCE_DATE:=.*/PKG_SOURCE_DATE:=$(date +%Y-%m-%d)/" Makefile
           echo "Updated Makefile to version $UPSTREAM_VERSION"
         fi
+
+    - name: Check if should create release
+      id: release-check
+      run: |
+        # Only create release for:
+        # 1. Manual workflow_dispatch with upstream_release input
+        # 2. Upstream release event
+        # 3. workflow_run triggered by sync (check if upstream has release)
+        
+        SHOULD_CREATE="false"
+        
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.upstream_release }}" ]; then
+          SHOULD_CREATE="true"
+        elif [ "${{ github.event_name }}" = "release" ]; then
+          SHOULD_CREATE="true"
+        elif [ "${{ github.event_name }}" = "workflow_run" ]; then
+          # For sync-triggered builds, check if upstream has a release
+          LATEST_RELEASE=$(curl -s https://api.github.com/repos/zeroclaw-labs/zeroclaw/releases/latest)
+          RELEASE_TAG=$(echo "$LATEST_RELEASE" | jq -r '.tag_name')
+          
+          # Check if our repo already has this release
+          RELEASE_CHECK=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/$RELEASE_TAG")
+          RELEASE_ID=$(echo "$RELEASE_CHECK" | jq -r '.id')
+          
+          if [ "$RELEASE_ID" != "null" ]; then
+            SHOULD_CREATE="true"
+          fi
+        fi
+        
+        echo "should_create_release=$SHOULD_CREATE" >> $GITHUB_OUTPUT
 
     - name: Install Rust toolchain
       run: |
@@ -278,7 +312,7 @@ jobs:
         path: openwrt/${{ env.IPK_FILE }}
 
     - name: Create GitHub Release
-      if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
+      if: steps.release-check.outputs.should_create_release == 'true'
       uses: softprops/action-gh-release@v2
       with:
         name: ZeroClaw IPK ${{ steps.upstream.outputs.upstream_version }}

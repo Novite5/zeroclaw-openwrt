@@ -27,7 +27,7 @@ struct ChatRequest {
     tools: Option<Vec<serde_json::Value>>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 struct Message {
     role: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -40,14 +40,14 @@ struct Message {
     tool_name: Option<String>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 struct OutgoingToolCall {
     #[serde(rename = "type")]
     kind: String,
     function: OutgoingFunction,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 struct OutgoingFunction {
     name: String,
     arguments: serde_json::Value,
@@ -89,10 +89,26 @@ struct OllamaToolCall {
 #[derive(Debug, Deserialize)]
 struct OllamaFunction {
     name: String,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "deserialize_args")]
     arguments: serde_json::Value,
 }
 
+// ─── serde Helpers ───────────────────────────────────────────────────────────
+fn deserialize_args<'de, D>(deserializer: D) -> Result<serde_json::Value, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let value = serde_json::Value::deserialize(deserializer)?;
+
+    if let Some(s) = value.as_str() {
+        match serde_json::from_str::<serde_json::Value>(s) {
+            Ok(v) => Ok(v),
+            Err(_) => Ok(serde_json::json!({})),
+        }
+    } else {
+        Ok(value)
+    }
+}
 // ─── Implementation ───────────────────────────────────────────────────────────
 
 impl OllamaProvider {
@@ -103,7 +119,8 @@ impl OllamaProvider {
         }
 
         trimmed
-            .strip_suffix("/api")
+            .strip_suffix("/api/chat")
+            .or_else(|| trimmed.strip_suffix("/api"))
             .unwrap_or(trimmed)
             .trim_end_matches('/')
             .to_string()
@@ -259,12 +276,30 @@ impl OllamaProvider {
         temperature: f64,
         tools: Option<&[serde_json::Value]>,
     ) -> ChatRequest {
+        self.build_chat_request_with_think(
+            messages,
+            model,
+            temperature,
+            tools,
+            self.reasoning_enabled,
+        )
+    }
+
+    /// Build a chat request with an explicit `think` value.
+    fn build_chat_request_with_think(
+        &self,
+        messages: Vec<Message>,
+        model: &str,
+        temperature: f64,
+        tools: Option<&[serde_json::Value]>,
+        think: Option<bool>,
+    ) -> ChatRequest {
         ChatRequest {
             model: model.to_string(),
             messages,
             stream: false,
             options: Options { temperature },
-            think: self.reasoning_enabled,
+            think,
             tools: tools.map(|t| t.to_vec()),
         }
     }
@@ -396,17 +431,18 @@ impl OllamaProvider {
             .collect()
     }
 
-    /// Send a request to Ollama and get the parsed response.
-    /// Pass `tools` to enable native function-calling for models that support it.
-    async fn send_request(
+    /// Send a single HTTP request to Ollama and parse the response.
+    async fn send_request_inner(
         &self,
-        messages: Vec<Message>,
+        messages: &[Message],
         model: &str,
         temperature: f64,
         should_auth: bool,
         tools: Option<&[serde_json::Value]>,
+        think: Option<bool>,
     ) -> anyhow::Result<ApiChatResponse> {
-        let request = self.build_chat_request(messages, model, temperature, tools);
+        let request =
+            self.build_chat_request_with_think(messages.to_vec(), model, temperature, tools, think);
 
         let url = format!("{}/api/chat", self.base_url);
 
@@ -464,6 +500,59 @@ impl OllamaProvider {
         };
 
         Ok(chat_response)
+    }
+
+    /// Send a request to Ollama and get the parsed response.
+    /// Pass `tools` to enable native function-calling for models that support it.
+    ///
+    /// When `reasoning_enabled` (`think`) is set to `true`, the first request
+    /// includes `think: true`.  If that request fails (the model may not support
+    /// the `think` parameter), we automatically retry once with `think` omitted
+    /// so the call succeeds instead of entering an infinite retry loop.
+    async fn send_request(
+        &self,
+        messages: Vec<Message>,
+        model: &str,
+        temperature: f64,
+        should_auth: bool,
+        tools: Option<&[serde_json::Value]>,
+    ) -> anyhow::Result<ApiChatResponse> {
+        let result = self
+            .send_request_inner(
+                &messages,
+                model,
+                temperature,
+                should_auth,
+                tools,
+                self.reasoning_enabled,
+            )
+            .await;
+
+        match result {
+            Ok(resp) => Ok(resp),
+            Err(first_err) if self.reasoning_enabled == Some(true) => {
+                tracing::warn!(
+                    model = model,
+                    error = %first_err,
+                    "Ollama request failed with think=true; retrying without reasoning \
+                     (model may not support it)"
+                );
+                // Retry with think omitted from the request entirely.
+                self.send_request_inner(&messages, model, temperature, should_auth, tools, None)
+                    .await
+                    .map_err(|retry_err| {
+                        // Both attempts failed — return the original error for clarity.
+                        tracing::error!(
+                            model = model,
+                            original_error = %first_err,
+                            retry_error = %retry_err,
+                            "Ollama request also failed without think; returning original error"
+                        );
+                        first_err
+                    })
+            }
+            Err(e) => Err(e),
+        }
     }
 
     /// Convert Ollama tool calls to the JSON format expected by parse_tool_calls in loop_.rs
@@ -542,8 +631,9 @@ impl OllamaProvider {
 impl Provider for OllamaProvider {
     fn capabilities(&self) -> ProviderCapabilities {
         ProviderCapabilities {
-            native_tool_calling: true,
+            native_tool_calling: false,
             vision: true,
+            prompt_caching: false,
         }
     }
 
@@ -676,6 +766,7 @@ impl Provider for OllamaProvider {
             Some(TokenUsage {
                 input_tokens: response.prompt_eval_count,
                 output_tokens: response.eval_count,
+                cached_input_tokens: None,
             })
         } else {
             None
@@ -734,10 +825,13 @@ impl Provider for OllamaProvider {
     }
 
     fn supports_native_tools(&self) -> bool {
-        // Ollama's /api/chat supports native function-calling for capable models
-        // (qwen2.5, llama3.1, mistral-nemo, etc.). chat_with_tools() sends tool
-        // definitions in the request and returns structured ToolCall objects.
-        true
+        // Default to prompt-guided tool calling (XML instructions in system prompt)
+        // because many Ollama-served models do not support Ollama's native
+        // /api/chat tool-calling parameter. Models that lack support silently
+        // ignore the tools array and emit tool-call JSON as plain text, which the
+        // agent loop cannot parse without the XML protocol instructions.
+        // See: https://github.com/zeroclaw-labs/zeroclaw/issues/3999
+        false
     }
 
     async fn chat(
@@ -809,6 +903,12 @@ mod tests {
     fn custom_url_strips_api_suffix() {
         let p = OllamaProvider::new(Some("https://ollama.com/api/"), None);
         assert_eq!(p.base_url, "https://ollama.com");
+    }
+
+    #[test]
+    fn custom_url_strips_api_chat_suffix() {
+        let p = OllamaProvider::new(Some("http://172.30.30.50:11434/api/chat"), None);
+        assert_eq!(p.base_url, "http://172.30.30.50:11434");
     }
 
     #[test]
@@ -1124,10 +1224,13 @@ mod tests {
     }
 
     #[test]
-    fn capabilities_include_native_tools_and_vision() {
+    fn capabilities_disable_native_tools_and_enable_vision() {
         let provider = OllamaProvider::new(None, None);
         let caps = <OllamaProvider as Provider>::capabilities(&provider);
-        assert!(caps.native_tool_calling);
+        assert!(
+            !caps.native_tool_calling,
+            "Ollama should default to prompt-guided tool calling"
+        );
         assert!(caps.vision);
     }
 

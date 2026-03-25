@@ -1,5 +1,8 @@
 import type { WsMessage } from '../types/api';
 import { getToken } from './auth';
+import { apiOrigin, basePath } from './basePath';
+import { isTauri } from './tauri';
+import { generateUUID } from './uuid';
 
 export type WsMessageHandler = (msg: WsMessage) => void;
 export type WsOpenHandler = () => void;
@@ -26,7 +29,7 @@ const SESSION_STORAGE_KEY = 'zeroclaw_session_id';
 function getOrCreateSessionId(): string {
   let id = sessionStorage.getItem(SESSION_STORAGE_KEY);
   if (!id) {
-    id = crypto.randomUUID();
+    id = generateUUID();
     sessionStorage.setItem(SESSION_STORAGE_KEY, id);
   }
   return id;
@@ -49,9 +52,15 @@ export class WebSocketClient {
   private readonly autoReconnect: boolean;
 
   constructor(options: WebSocketClientOptions = {}) {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    this.baseUrl =
-      options.baseUrl ?? `${protocol}//${window.location.host}`;
+    let defaultBase: string;
+    if (isTauri() && apiOrigin) {
+      // In Tauri, derive ws URL from the gateway origin.
+      defaultBase = apiOrigin.replace(/^http/, 'ws');
+    } else {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      defaultBase = `${protocol}//${window.location.host}`;
+    }
+    this.baseUrl = options.baseUrl ?? defaultBase;
     this.reconnectDelay = options.reconnectDelay ?? DEFAULT_RECONNECT_DELAY;
     this.maxReconnectDelay = options.maxReconnectDelay ?? MAX_RECONNECT_DELAY;
     this.autoReconnect = options.autoReconnect ?? true;
@@ -68,9 +77,11 @@ export class WebSocketClient {
     const params = new URLSearchParams();
     if (token) params.set('token', token);
     params.set('session_id', sessionId);
-    const url = `${this.baseUrl}/ws/chat?${params.toString()}`;
+    const url = `${this.baseUrl}${basePath}/ws/chat?${params.toString()}`;
 
-    this.ws = new WebSocket(url, ['zeroclaw.v1']);
+    const protocols: string[] = ['zeroclaw.v1'];
+    if (token) protocols.push(`bearer.${token}`);
+    this.ws = new WebSocket(url, protocols);
 
     this.ws.onopen = () => {
       this.currentDelay = this.reconnectDelay;

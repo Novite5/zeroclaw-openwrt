@@ -2,14 +2,18 @@ import type {
   StatusResponse,
   ToolSpec,
   CronJob,
+  CronRun,
   Integration,
   DiagResult,
   MemoryEntry,
   CostSummary,
   CliTool,
   HealthSnapshot,
+  Session,
+  ChannelDetail,
 } from '../types/api';
 import { clearToken, getToken, setToken } from './auth';
+import { apiOrigin, basePath } from './basePath';
 
 // ---------------------------------------------------------------------------
 // Base fetch wrapper
@@ -41,7 +45,7 @@ export async function apiFetch<T = unknown>(
     headers.set('Content-Type', 'application/json');
   }
 
-  const response = await fetch(path, { ...options, headers });
+  const response = await fetch(`${apiOrigin}${basePath}${path}`, { ...options, headers });
 
   if (response.status === 401) {
     clearToken();
@@ -77,7 +81,7 @@ function unwrapField<T>(value: T | Record<string, T>, key: string): T {
 // ---------------------------------------------------------------------------
 
 export async function pair(code: string): Promise<{ token: string }> {
-  const response = await fetch('/pair', {
+  const response = await fetch(`${basePath}/pair`, {
     method: 'POST',
     headers: { 'X-Pairing-Code': code },
   });
@@ -92,12 +96,20 @@ export async function pair(code: string): Promise<{ token: string }> {
   return data;
 }
 
+export async function getAdminPairCode(): Promise<{ pairing_code: string | null; pairing_required: boolean }> {
+  const response = await fetch('/admin/paircode');
+  if (!response.ok) {
+    throw new Error(`Failed to fetch pairing code (${response.status})`);
+  }
+  return response.json() as Promise<{ pairing_code: string | null; pairing_required: boolean }>;
+}
+
 // ---------------------------------------------------------------------------
 // Public health (no auth required)
 // ---------------------------------------------------------------------------
 
 export async function getPublicHealth(): Promise<{ require_pairing: boolean; paired: boolean }> {
-  const response = await fetch('/health');
+  const response = await fetch(`${basePath}/health`);
   if (!response.ok) {
     throw new Error(`Health check failed (${response.status})`);
   }
@@ -173,6 +185,48 @@ export function deleteCronJob(id: string): Promise<void> {
     method: 'DELETE',
   });
 }
+export function patchCronJob(
+  id: string,
+  patch: { name?: string; schedule?: string; command?: string },
+): Promise<CronJob> {
+  return apiFetch<CronJob | { status: string; job: CronJob }>(
+    `/api/cron/${encodeURIComponent(id)}`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify(patch),
+    },
+  ).then((data) => (typeof (data as { job?: CronJob }).job === 'object' ? (data as { job: CronJob }).job : (data as CronJob)));
+}
+
+
+export function getCronRuns(
+  jobId: string,
+  limit: number = 20,
+): Promise<CronRun[]> {
+  const params = new URLSearchParams({ limit: String(limit) });
+  return apiFetch<CronRun[] | { runs: CronRun[] }>(
+    `/api/cron/${encodeURIComponent(jobId)}/runs?${params}`,
+  ).then((data) => unwrapField(data, 'runs'));
+}
+
+export interface CronSettings {
+  enabled: boolean;
+  catch_up_on_startup: boolean;
+  max_run_history: number;
+}
+
+export function getCronSettings(): Promise<CronSettings> {
+  return apiFetch<CronSettings>('/api/cron/settings');
+}
+
+export function patchCronSettings(
+  patch: Partial<CronSettings>,
+): Promise<CronSettings> {
+  return apiFetch<CronSettings & { status: string }>('/api/cron/settings', {
+    method: 'PATCH',
+    body: JSON.stringify(patch),
+  });
+}
 
 // ---------------------------------------------------------------------------
 // Integrations
@@ -236,6 +290,30 @@ export function deleteMemory(key: string): Promise<void> {
 export function getCost(): Promise<CostSummary> {
   return apiFetch<CostSummary | { cost: CostSummary }>('/api/cost').then((data) =>
     unwrapField(data, 'cost'),
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Sessions
+// ---------------------------------------------------------------------------
+
+export function getSessions(): Promise<Session[]> {
+  return apiFetch<Session[] | { sessions: Session[] }>('/api/sessions').then((data) =>
+    unwrapField(data, 'sessions'),
+  );
+}
+
+export function getSession(id: string): Promise<Session> {
+  return apiFetch<Session>(`/api/sessions/${encodeURIComponent(id)}`);
+}
+
+// ---------------------------------------------------------------------------
+// Channels (detailed)
+// ---------------------------------------------------------------------------
+
+export function getChannels(): Promise<ChannelDetail[]> {
+  return apiFetch<ChannelDetail[] | { channels: ChannelDetail[] }>('/api/channels').then((data) =>
+    unwrapField(data, 'channels'),
   );
 }
 

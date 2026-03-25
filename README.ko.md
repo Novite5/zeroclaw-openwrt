@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="zeroclaw.png" alt="ZeroClaw" width="200" />
+  <img src="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/master/docs/assets/zeroclaw-banner.png" alt="ZeroClaw" width="600" />
 </p>
 
-<h1 align="center">ZeroClaw 🦀</h1>
+<h1 align="center">🦀 ZeroClaw — 개인 AI 어시스턴트</h1>
 
 <p align="center">
   <strong>오버헤드 없음. 타협 없음. 100% Rust. 100% 독립적.</strong><br>
@@ -11,21 +11,24 @@
 
 <p align="center">
   <a href="LICENSE-APACHE"><img src="https://img.shields.io/badge/license-MIT%20OR%20Apache%202.0-blue.svg" alt="License: MIT OR Apache-2.0" /></a>
-  <a href="NOTICE"><img src="https://img.shields.io/badge/contributors-27+-green.svg" alt="Contributors" /></a>
+  <a href="https://github.com/zeroclaw-labs/zeroclaw/graphs/contributors"><img src="https://img.shields.io/github/contributors/zeroclaw-labs/zeroclaw?color=green" alt="Contributors" /></a>
   <a href="https://buymeacoffee.com/argenistherose"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Donate-yellow.svg?style=flat&logo=buy-me-a-coffee" alt="Buy Me a Coffee" /></a>
   <a href="https://x.com/zeroclawlabs?s=21"><img src="https://img.shields.io/badge/X-%40zeroclawlabs-000000?style=flat&logo=x&logoColor=white" alt="X: @zeroclawlabs" /></a>
-  <a href="https://zeroclawlabs.cn/group.jpg"><img src="https://img.shields.io/badge/WeChat-Group-B7D7A8?logo=wechat&logoColor=white" alt="WeChat Group" /></a>
-  <a href="https://www.xiaohongshu.com/user/profile/67cbfc43000000000d008307?xsec_token=AB73VnYnGNx5y36EtnnZfGmAmS-6Wzv8WMuGpfwfkg6Yc%3D&xsec_source=pc_search"><img src="https://img.shields.io/badge/Xiaohongshu-Official-FF2442?style=flat" alt="Xiaohongshu: Official" /></a>
-  <a href="https://t.me/zeroclawlabs"><img src="https://img.shields.io/badge/Telegram-%40zeroclawlabs-26A5E4?style=flat&logo=telegram&logoColor=white" alt="Telegram: @zeroclawlabs" /></a>
-  <a href="https://www.facebook.com/groups/zeroclaw"><img src="https://img.shields.io/badge/Facebook-Group-1877F2?style=flat&logo=facebook&logoColor=white" alt="Facebook Group" /></a>
+  <a href="https://www.facebook.com/groups/zeroclawlabs"><img src="https://img.shields.io/badge/Facebook-Group-1877F2?style=flat&logo=facebook&logoColor=white" alt="Facebook Group" /></a>
+  <a href="https://discord.com/invite/wDshRVqRjx"><img src="https://img.shields.io/badge/Discord-Join-5865F2?style=flat&logo=discord&logoColor=white" alt="Discord" /></a>
+  <a href="https://www.instagram.com/therealzeroclaw"><img src="https://img.shields.io/badge/Instagram-%40therealzeroclaw-E4405F?style=flat&logo=instagram&logoColor=white" alt="Instagram: @therealzeroclaw" /></a>
+  <a href="https://www.tiktok.com/@zeroclawlabs"><img src="https://img.shields.io/badge/TikTok-%40zeroclawlabs-000000?style=flat&logo=tiktok&logoColor=white" alt="TikTok: @zeroclawlabs" /></a>
+  <a href="https://www.rednote.com/user/profile/69b735e6000000002603927e"><img src="https://img.shields.io/badge/RedNote-Official-FF2442?style=flat" alt="RedNote" /></a>
   <a href="https://www.reddit.com/r/zeroclawlabs/"><img src="https://img.shields.io/badge/Reddit-r%2Fzeroclawlabs-FF4500?style=flat&logo=reddit&logoColor=white" alt="Reddit: r/zeroclawlabs" /></a>
 </p>
+
 <p align="center">
 Harvard, MIT, 그리고 Sundai.Club 커뮤니티의 학생들과 멤버들이 만들었습니다.
 </p>
 
 <p align="center">
-  🌐 <strong>언어:</strong><a href="README.md">🇺🇸 English</a> ·
+  🌐 <strong>언어:</strong>
+  <a href="README.md">🇺🇸 English</a> ·
   <a href="README.zh-CN.md">🇨🇳 简体中文</a> ·
   <a href="README.ja.md">🇯🇵 日本語</a> ·
   <a href="README.ko.md">🇰🇷 한국어</a> ·
@@ -58,79 +61,190 @@ Harvard, MIT, 그리고 Sundai.Club 커뮤니티의 학생들과 멤버들이 �
   <a href="README.nb.md">🇳🇴 Norsk</a>
 </p>
 
-<p align="center">
-  <a href="#빠른-시작">빠른 시작</a> |
-  <a href="bootstrap.sh">원클릭 설정</a> |
-  <a href="docs/README.md">문서 허브</a> |
-  <a href="docs/SUMMARY.md">문서 목차</a>
-</p>
+ZeroClaw는 자신의 기기에서 실행하는 개인 AI 어시스턴트입니다. 이미 사용하고 있는 채널(WhatsApp, Telegram, Slack, Discord, Signal, iMessage, Matrix, IRC, Email, Bluesky, Nostr, Mattermost, Nextcloud Talk, DingTalk, Lark, QQ, Reddit, LinkedIn, Twitter, MQTT, WeChat Work 등)에서 응답합니다. 실시간 제어를 위한 웹 대시보드가 있으며 하드웨어 주변기기(ESP32, STM32, Arduino, Raspberry Pi)에 연결할 수 있습니다. Gateway는 단순한 제어 평면이며, 제품은 어시스턴트 자체입니다.
+
+로컬에서 빠르고 항상 켜져 있는 개인 단일 사용자 어시스턴트를 원한다면 바로 이것입니다.
 
 <p align="center">
-  <strong>빠른 접근:</strong>
-  <a href="docs/reference/README.md">참조</a> ·
-  <a href="docs/operations/README.md">운영</a> ·
-  <a href="docs/troubleshooting.md">문제 해결</a> ·
-  <a href="docs/security/README.md">보안</a> ·
-  <a href="docs/hardware/README.md">하드웨어</a> ·
-  <a href="docs/contributing/README.md">기여하기</a>
+  <a href="https://zeroclawlabs.ai">웹사이트</a> ·
+  <a href="docs/README.md">문서</a> ·
+  <a href="docs/architecture.md">아키텍처</a> ·
+  <a href="#빠른-시작-tldr">시작하기</a> ·
+  <a href="#openclaw에서-마이그레이션">OpenClaw에서 마이그레이션</a> ·
+  <a href="docs/ops/troubleshooting.md">문제 해결</a> ·
+  <a href="https://discord.com/invite/wDshRVqRjx">Discord</a>
 </p>
 
-<p align="center">
-  <strong>빠르고 가벼우며 완전히 자율적인 AI 어시스턴트 인프라</strong><br />
-  어디서나 배포. 무엇이든 교체.
-</p>
+> **권장 설정:** 터미널에서 `zeroclaw onboard`를 실행하세요. ZeroClaw Onboard가 gateway, workspace, 채널, 제공자 설정을 단계별로 안내합니다. macOS, Linux, Windows(WSL2)에서 작동하는 권장 설정 경로입니다. 새로 설치하시나요? 여기서 시작하세요: [시작하기](#빠른-시작-tldr)
 
-<p align="center">
-  ZeroClaw는 에이전트 워크플로우를 위한 <strong>런타임 운영체제</strong>입니다 — 모델, 도구, 메모리, 실행을 추상화하여 한 번 구축하고 어디서나 실행할 수 있는 인프라입니다.
-</p>
+### Subscription Auth (OAuth)
 
-<p align="center"><code>트레이트 기반 아키텍처 · 기본 보안 런타임 · 교체 가능한 제공자/채널/도구 · 모든 것이 플러그 가능</code></p>
+- **OpenAI Codex** (ChatGPT 구독)
+- **Gemini** (Google OAuth)
+- **Anthropic** (API 키 또는 인증 토큰)
+
+모델 참고: 많은 제공자/모델이 지원되지만, 최상의 경험을 위해 사용 가능한 최신 세대의 가장 강력한 모델을 사용하세요. [온보딩](#빠른-시작-tldr)을 참조하세요.
+
+모델 구성 + CLI: [Providers reference](docs/reference/api/providers-reference.md)
+인증 프로필 교체(OAuth vs API 키) + 장애 조치: [Model failover](docs/reference/api/providers-reference.md)
+
+## 설치 (권장)
+
+런타임: Rust stable 툴체인. 단일 바이너리, 런타임 의존성 없음.
+
+### Homebrew (macOS/Linuxbrew)
+
+```bash
+brew install zeroclaw
+```
+
+### 원클릭 부트스트랩
+
+```bash
+git clone https://github.com/zeroclaw-labs/zeroclaw.git
+cd zeroclaw
+./install.sh
+```
+
+`zeroclaw onboard`는 설치 후 자동으로 실행되어 workspace와 제공자를 구성합니다.
+
+## 빠른 시작 (TL;DR)
+
+전체 초보자 가이드(인증, 페어링, 채널): [시작하기](docs/setup-guides/one-click-bootstrap.md)
+
+```bash
+# 설치 + 온보드
+./install.sh --api-key "sk-..." --provider openrouter
+
+# Gateway 시작 (webhook 서버 + 웹 대시보드)
+zeroclaw gateway                # 기본값: 127.0.0.1:42617
+zeroclaw gateway --port 0       # 랜덤 포트 (보안 강화)
+
+# 어시스턴트와 대화
+zeroclaw agent -m "Hello, ZeroClaw!"
+
+# 대화형 모드
+zeroclaw agent
+
+# 완전 자율 런타임 시작 (gateway + 채널 + cron + hands)
+zeroclaw daemon
+
+# 상태 확인
+zeroclaw status
+
+# 진단 실행
+zeroclaw doctor
+```
+
+업그레이드 하셨나요? 업데이트 후 `zeroclaw doctor`를 실행하세요.
+
+### 소스에서 빌드 (개발용)
+
+```bash
+git clone https://github.com/zeroclaw-labs/zeroclaw.git
+cd zeroclaw
+
+cargo build --release --locked
+cargo install --path . --force --locked
+
+zeroclaw onboard
+```
+
+> **개발 폴백 (글로벌 설치 없이):** 명령 앞에 `cargo run --release --`를 붙이세요 (예: `cargo run --release -- status`).
+
+## OpenClaw에서 마이그레이션
+
+ZeroClaw는 OpenClaw workspace, 메모리, 구성을 가져올 수 있습니다:
+
+```bash
+# 마이그레이션 대상 미리보기 (안전, 읽기 전용)
+zeroclaw migrate openclaw --dry-run
+
+# 마이그레이션 실행
+zeroclaw migrate openclaw
+```
+
+이것은 메모리 항목, workspace 파일, 구성을 `~/.openclaw/`에서 `~/.zeroclaw/`로 마이그레이션합니다. 구성은 JSON에서 TOML로 자동 변환됩니다.
+
+## 보안 기본값 (DM 접근)
+
+ZeroClaw는 실제 메시징 서비스에 연결됩니다. 수신 DM을 신뢰할 수 없는 입력으로 취급하세요.
+
+전체 보안 가이드: [SECURITY.md](SECURITY.md)
+
+모든 채널의 기본 동작:
+
+- **DM 페어링** (기본값): 알 수 없는 발신자는 짧은 페어링 코드를 받으며 봇은 메시지를 처리하지 않습니다.
+- 승인: `zeroclaw pairing approve <channel> <code>` (발신자가 로컬 허용 목록에 추가됩니다).
+- 공개 수신 DM은 `config.toml`에서 명시적 옵트인이 필요합니다.
+- `zeroclaw doctor`를 실행하여 위험하거나 잘못 구성된 DM 정책을 확인하세요.
+
+**자율성 수준:**
+
+| 수준 | 동작 |
+|-------|----------|
+| `ReadOnly` | 에이전트가 관찰만 할 수 있고 행동하지 않음 |
+| `Supervised` (기본값) | 에이전트가 중/고위험 작업에 대해 승인을 받고 행동 |
+| `Full` | 에이전트가 정책 범위 내에서 자율적으로 행동 |
+
+**샌드박싱 계층:** workspace 격리, 경로 탐색 차단, 명령 허용 목록, 금지 경로 (`/etc`, `/root`, `~/.ssh`), 속도 제한 (시간당 최대 작업 수, 일일 비용 상한).
+
+<!-- BEGIN:WHATS_NEW -->
+<!-- END:WHATS_NEW -->
 
 ### 📢 공지사항
 
-이 표를 사용하여 중요한 공지사항(호환성 변경, 보안 공지, 유지보수 기간, 버전 차단)을 확인하세요.
+이 표를 사용하여 중요한 공지사항(호환성 변경, 보안 권고, 유지보수 기간, 릴리스 차단)을 확인하세요.
 
-| 날짜 (UTC) | 수준      | 공지                                                                                                                                                                                                                                                                                                                                                                                                              | 조치                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| ---------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-02-19 | _중요_  | 우리는 `openagen/zeroclaw` 또는 `zeroclaw.org`와 **관련이 없습니다**. `zeroclaw.org` 도메인은 현재 `openagen/zeroclaw` 포크를 가리키고 있으며, 이 도메인/저장소는 우리의 공식 웹사이트/프로젝트를 사칭하고 있습니다.                                                                                                                                                                                 | 이 소스의 정보, 바이너리, 펀딩, 공지를 신뢰하지 마세요. [이 저장소](https://github.com/zeroclaw-labs/zeroclaw)와 우리의 확인된 소셜 계정만 사용하세요.                                                                                                                                                                                                                                                                                                                                                          |
-| 2026-02-21 | _중요_ | 우리의 공식 웹사이트가 이제 온라인입니다: [zeroclawlabs.ai](https://zeroclawlabs.ai). 기다려주셔서 감사합니다. 여전히 사칭 시도가 감지되고 있습니다: 공식 채널을 통해 게시되지 않은 ZeroClaw 이름의 모든 투자/펀딩 활동에 참여하지 마세요.                                                                                                                   | [이 저장소](https://github.com/zeroclaw-labs/zeroclaw)를 유일한 진실의 원천으로 사용하세요. [X (@zeroclawlabs)](https://x.com/zeroclawlabs?s=21), [Telegram (@zeroclawlabs)](https://t.me/zeroclawlabs), [Facebook (그룹)](https://www.facebook.com/groups/zeroclaw), [Reddit (r/zeroclawlabs)](https://www.reddit.com/r/zeroclawlabs/), 그리고 [Xiaohongshu](https://www.xiaohongshu.com/user/profile/67cbfc43000000000d008307?xsec_token=AB73VnYnGNx5y36EtnnZfGmAmS-6Wzv8WMuGpfwfkg6Yc%3D&xsec_source=pc_search)를 팔로우하여 공식 업데이트를 받으세요. |
-| 2026-02-19 | _중요_ | Anthropic이 2026-02-19에 인증 및 자격증명 사용 약관을 업데이트했습니다. OAuth 인증(Free, Pro, Max)은 Claude Code 및 Claude.ai 전용입니다. 다른 제품, 도구 또는 서비스(Agent SDK 포함)에서 Claude Free/Pro/Max OAuth 토큰을 사용하는 것은 허용되지 않으며 소비자 이용약관을 위반할 수 있습니다. | 잠재적인 손실을 방지하기 위해 일시적으로 Claude Code OAuth 통합을 피하세요. 원본 조항: [Authentication and Credential Use](https://code.claude.com/docs/en/legal-and-compliance#authentication-and-credential-use).                                                                                                                                                                                                                                                                                                                      |
+| 날짜 (UTC) | 수준 | 공지 | 조치 |
+| ---------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-02-19 | _치명적_ | 우리는 `openagen/zeroclaw`, `zeroclaw.org` 또는 `zeroclaw.net`과 **관련이 없습니다**. `zeroclaw.org`과 `zeroclaw.net` 도메인은 현재 `openagen/zeroclaw` 포크를 가리키고 있으며, 해당 도메인/저장소는 우리의 공식 웹사이트/프로젝트를 사칭하고 있습니다. | 해당 소스의 정보, 바이너리, 모금, 공지를 신뢰하지 마세요. [이 저장소](https://github.com/zeroclaw-labs/zeroclaw)와 검증된 소셜 계정만 사용하세요. |
+| 2026-02-21 | _중요_ | 공식 웹사이트가 이제 온라인입니다: [zeroclawlabs.ai](https://zeroclawlabs.ai). 기다려주셔서 감사합니다. 사칭 시도가 여전히 감지되고 있으므로, 공식 채널을 통해 게시되지 않은 ZeroClaw 이름의 투자나 모금 활동에 참여하지 **마세요**. | [이 저장소](https://github.com/zeroclaw-labs/zeroclaw)를 유일한 진실의 원천으로 사용하세요. [X (@zeroclawlabs)](https://x.com/zeroclawlabs?s=21), [Facebook (그룹)](https://www.facebook.com/groups/zeroclawlabs), [Reddit (r/zeroclawlabs)](https://www.reddit.com/r/zeroclawlabs/)을 팔로우하여 공식 업데이트를 받으세요. |
+| 2026-02-19 | _중요_ | Anthropic이 2026-02-19에 인증 및 자격증명 사용 약관을 업데이트했습니다. Claude Code OAuth 토큰(Free, Pro, Max)은 Claude Code와 Claude.ai 전용입니다. 다른 제품, 도구 또는 서비스(Agent SDK 포함)에서 Claude Free/Pro/Max OAuth 토큰을 사용하는 것은 허용되지 않으며 소비자 이용약관을 위반할 수 있습니다. | 잠재적 손실을 방지하기 위해 일시적으로 Claude Code OAuth 통합을 피하세요. 원본 조항: [Authentication and Credential Use](https://code.claude.com/docs/en/legal-and-compliance#authentication-and-credential-use). |
 
-### ✨ 기능
+## 주요 특징
 
-- 🏎️ **기본 경량 런타임:** 일반적인 CLI 워크플로우와 상태 명령이 프로덕션 빌드에서 몇 메가바이트의 메모리 공간 내에서 실행됩니다.
-- 💰 **비용 효율적인 배포:** 무거운 런타임 의존성 없이 저비용 보드 및 소규모 클라우드 인스턴스를 위해 설계되었습니다.
-- ⚡ **빠른 콜드 스타트:** 단일 Rust 바이너리 런타임이 일상적인 운영을 위해 거의 즉각적인 명령 및 데몬 시작을 유지합니다.
-- 🌍 **이식 가능한 아키텍처:** 교체 가능한 제공자/채널/도구로 ARM, x86, RISC-V에서 단일 바이너리 워크플로우.
+- **기본 경량 런타임** — 일반적인 CLI 및 상태 워크플로우가 릴리스 빌드에서 몇 메가바이트의 메모리 범위 내에서 실행됩니다.
+- **비용 효율적인 배포** — $10 보드와 소규모 클라우드 인스턴스를 위해 설계되었으며, 무거운 런타임 의존성이 없습니다.
+- **빠른 콜드 스타트** — 단일 바이너리 Rust 런타임으로 명령 및 데몬 시작이 거의 즉각적입니다.
+- **이식 가능한 아키텍처** — 교체 가능한 제공자/채널/도구로 ARM, x86, RISC-V에서 하나의 바이너리.
+- **로컬 우선 Gateway** — 세션, 채널, 도구, cron, SOP, 이벤트를 위한 단일 제어 평면.
+- **멀티 채널 수신함** — WhatsApp, Telegram, Slack, Discord, Signal, iMessage, Matrix, IRC, Email, Bluesky, Nostr, Mattermost, Nextcloud Talk, DingTalk, Lark, QQ, Reddit, LinkedIn, Twitter, MQTT, WeChat Work, WebSocket 등.
+- **멀티 에이전트 오케스트레이션 (Hands)** — 스케줄에 따라 실행되고 시간이 지남에 따라 더 똑똑해지는 자율 에이전트 스웜.
+- **표준 운영 절차 (SOPs)** — MQTT, webhook, cron, 주변기기 트리거를 통한 이벤트 기반 워크플로우 자동화.
+- **웹 대시보드** — 실시간 채팅, 메모리 브라우저, 구성 편집기, cron 관리자, 도구 검사기를 갖춘 React 19 + Vite 웹 UI.
+- **하드웨어 주변기기** — `Peripheral` 트레이트를 통한 ESP32, STM32 Nucleo, Arduino, Raspberry Pi GPIO.
+- **일급 도구** — shell, file I/O, browser, git, web fetch/search, MCP, Jira, Notion, Google Workspace 등 70개 이상.
+- **라이프사이클 훅** — 모든 단계에서 LLM 호출, 도구 실행, 메시지를 가로채고 수정.
+- **스킬 플랫폼** — 번들, 커뮤니티, workspace 스킬과 보안 감사.
+- **터널 지원** — 원격 접속을 위한 Cloudflare, Tailscale, ngrok, OpenVPN, 사용자 정의 터널.
 
-### 왜 팀들이 ZeroClaw를 선택하나요
+### 팀이 ZeroClaw를 선택하는 이유
 
-- **기본 경량:** 작은 Rust 바이너리, 빠른 시작, 낮은 메모리 공간.
-- **기본 보안:** 페어링, 엄격한 샌드박싱, 명시적 허용 목록, 작업공간 범위.
-- **완전히 교체 가능:** 핵심 시스템이 트레이트입니다(제공자, 채널, 도구, 메모리, 터널).
+- **기본 경량:** 작은 Rust 바이너리, 빠른 시작, 낮은 메모리 사용.
+- **기본 보안:** 페어링, 엄격한 샌드박싱, 명시적 허용 목록, workspace 범위 지정.
+- **완전히 교체 가능:** 핵심 시스템이 트레이트(제공자, 채널, 도구, 메모리, 터널).
 - **벤더 락인 없음:** OpenAI 호환 제공자 지원 + 플러그 가능한 사용자 정의 엔드포인트.
 
 ## 벤치마크 스냅샷 (ZeroClaw vs OpenClaw, 재현 가능)
 
-로컬 머신에서 빠른 벤치마크(macOS arm64, 2026년 2월) 0.8 GHz 엣지 하드웨어로 정규화됨.
+로컬 머신 빠른 벤치마크 (macOS arm64, 2026년 2월) 0.8GHz 엣지 하드웨어로 정규화.
 
-|                              | OpenClaw      | NanoBot        | PicoClaw        | ZeroClaw 🦀           |
-| ---------------------------- | ------------- | -------------- | --------------- | --------------------- |
-| **언어**                  | TypeScript    | Python         | Go              | **Rust**              |
-| **RAM**                      | > 1 GB        | > 100 MB       | < 10 MB         | **< 5 MB**            |
-| **시작 (0.8 GHz 코어)** | > 500s        | > 30s          | < 1s            | **< 10ms**            |
-| **바이너리 크기**           | ~28 MB (dist) | N/A (Scripts)  | ~8 MB           | **3.4 MB**            |
-| **비용**                     | Mac Mini $599 | Linux SBC ~$50 | Linux 보드 $10 | **모든 하드웨어 $10** |
+|                           | OpenClaw      | NanoBot        | PicoClaw        | ZeroClaw 🦀          |
+| ------------------------- | ------------- | -------------- | --------------- | -------------------- |
+| **언어**              | TypeScript    | Python         | Go              | **Rust**             |
+| **RAM**                   | > 1GB         | > 100MB        | < 10MB          | **< 5MB**            |
+| **시작 (0.8GHz 코어)** | > 500s        | > 30s          | < 1s            | **< 10ms**           |
+| **바이너리 크기**           | ~28MB (dist)  | N/A (Scripts)  | ~8MB            | **~8.8 MB**          |
+| **비용**                  | Mac Mini $599 | Linux SBC ~$50 | Linux Board $10 | **모든 하드웨어 $10** |
 
-> 참고: ZeroClaw 결과는 `/usr/bin/time -l`을 사용한 프로덕션 빌드에서 측정되었습니다. OpenClaw는 Node.js 런타임이 필요하며(일반적으로 ~390MB 추가 메모리 오버헤드), NanoBot은 Python 런타임이 필요합니다. PicoClaw와 ZeroClaw는 정적 바이너리입니다. 위 RAM 수치는 런타임 메모리이며, 빌드 시간 컴파일 요구사항은 더 높습니다.
+> 참고: ZeroClaw 결과는 `/usr/bin/time -l`을 사용한 릴리스 빌드에서 측정되었습니다. OpenClaw는 Node.js 런타임이 필요하며(일반적으로 ~390MB 추가 메모리 오버헤드), NanoBot은 Python 런타임이 필요합니다. PicoClaw와 ZeroClaw는 정적 바이너리입니다. 위 RAM 수치는 런타임 메모리이며, 빌드 시 컴파일 요구사항은 더 높습니다.
 
 <p align="center">
-  <img src="zero-claw.jpeg" alt="ZeroClaw vs OpenClaw 비교" width="800" />
+  <img src="docs/assets/zeroclaw-comparison.jpeg" alt="ZeroClaw vs OpenClaw Comparison" width="800" />
 </p>
 
 ### 재현 가능한 로컬 측정
-
-벤치마크 주장은 코드와 툴체인의 발전에 따라 달라질 수 있으므로 항상 현재 빌드를 로컬에서 측정하세요:
 
 ```bash
 cargo build --release
@@ -140,20 +254,266 @@ ls -lh target/release/zeroclaw
 /usr/bin/time -l target/release/zeroclaw status
 ```
 
-샘플 예시(macOS arm64, 2026년 2월 18일 측정):
+## 지금까지 구축한 모든 것
 
-- 릴리스 바이너리 크기: `8.8M`
-- `zeroclaw --help`: 실제 시간 약 `0.02s`, 최대 메모리 공간 ~`3.9 MB`
-- `zeroclaw status`: 실제 시간 약 `0.01s`, 최대 메모리 공간 ~`4.1 MB`
+### 핵심 플랫폼
+
+- 세션, 프레즌스, 구성, cron, webhook, 웹 대시보드, 페어링을 갖춘 Gateway HTTP/WS/SSE 제어 평면.
+- CLI 표면: `gateway`, `agent`, `onboard`, `doctor`, `status`, `service`, `migrate`, `auth`, `cron`, `channel`, `skills`.
+- 도구 디스패치, 프롬프트 구성, 메시지 분류, 메모리 로딩을 갖춘 에이전트 오케스트레이션 루프.
+- 보안 정책 적용, 자율성 수준, 승인 게이팅을 갖춘 세션 모델.
+- 20개 이상의 LLM 백엔드에 걸쳐 장애 조치, 재시도, 모델 라우팅을 갖춘 탄력적 제공자 래퍼.
+
+### 채널
+
+채널: WhatsApp (네이티브), Telegram, Slack, Discord, Signal, iMessage, Matrix, IRC, Email, Bluesky, DingTalk, Lark, Mattermost, Nextcloud Talk, Nostr, QQ, Reddit, LinkedIn, Twitter, MQTT, WeChat Work, WATI, Mochat, Linq, Notion, WebSocket, ClawdTalk.
+
+기능 게이트: Matrix (`channel-matrix`), Lark (`channel-lark`), Nostr (`channel-nostr`).
+
+### 웹 대시보드
+
+Gateway에서 직접 제공하는 React 19 + Vite 6 + Tailwind CSS 4 웹 대시보드:
+
+- **대시보드** — 시스템 개요, 상태, 가동 시간, 비용 추적
+- **에이전트 채팅** — 에이전트와의 대화형 채팅
+- **메모리** — 메모리 항목 탐색 및 관리
+- **구성** — 구성 보기 및 편집
+- **Cron** — 예약된 작업 관리
+- **도구** — 사용 가능한 도구 탐색
+- **로그** — 에이전트 활동 로그 보기
+- **비용** — 토큰 사용량 및 비용 추적
+- **Doctor** — 시스템 상태 진단
+- **통합** — 통합 상태 및 설정
+- **페어링** — 기기 페어링 관리
+
+### 펌웨어 대상
+
+| 대상 | 플랫폼 | 용도 |
+|--------|----------|---------|
+| ESP32 | Espressif ESP32 | 무선 주변기기 에이전트 |
+| ESP32-UI | ESP32 + Display | 시각적 인터페이스를 갖춘 에이전트 |
+| STM32 Nucleo | STM32 (ARM Cortex-M) | 산업용 주변기기 |
+| Arduino | Arduino | 기본 센서/액추에이터 브릿지 |
+| Uno Q Bridge | Arduino Uno | 에이전트와의 시리얼 브릿지 |
+
+### 도구 + 자동화
+
+- **코어:** shell, file read/write/edit, git operations, glob search, content search
+- **웹:** browser control, web fetch, web search, screenshot, image info, PDF read
+- **통합:** Jira, Notion, Google Workspace, Microsoft 365, LinkedIn, Composio, Pushover
+- **MCP:** Model Context Protocol tool wrapper + deferred tool sets
+- **스케줄링:** cron add/remove/update/run, schedule tool
+- **메모리:** recall, store, forget, knowledge, project intel
+- **고급:** delegate (agent-to-agent), swarm, model switch/routing, security ops, cloud ops
+- **하드웨어:** board info, memory map, memory read (feature-gated)
+
+### 런타임 + 안전
+
+- **자율성 수준:** ReadOnly, Supervised (기본값), Full.
+- **샌드박싱:** workspace 격리, 경로 탐색 차단, 명령 허용 목록, 금지 경로, Landlock (Linux), Bubblewrap.
+- **속도 제한:** 시간당 최대 작업 수, 일일 최대 비용 (구성 가능).
+- **승인 게이팅:** 중/고위험 작업에 대한 대화형 승인.
+- **긴급 정지:** 긴급 종료 기능.
+- **129개 이상의 보안 테스트** 자동화된 CI에서.
+
+### 운영 + 패키징
+
+- Gateway에서 직접 제공하는 웹 대시보드.
+- 터널 지원: Cloudflare, Tailscale, ngrok, OpenVPN, custom command.
+- 컨테이너화된 실행을 위한 Docker 런타임 어댑터.
+- CI/CD: beta (push 시 자동) → stable (수동 디스패치) → Docker, crates.io, Scoop, AUR, Homebrew, tweet.
+- Linux (x86_64, aarch64, armv7), macOS (x86_64, aarch64), Windows (x86_64)용 사전 빌드 바이너리.
+
+
+## 구성
+
+최소 `~/.zeroclaw/config.toml`:
+
+```toml
+default_provider = "anthropic"
+api_key = "sk-ant-..."
+```
+
+전체 구성 참조: [docs/reference/api/config-reference.md](docs/reference/api/config-reference.md).
+
+### 채널 구성
+
+**Telegram:**
+```toml
+[channels.telegram]
+bot_token = "123456:ABC-DEF..."
+```
+
+**Discord:**
+```toml
+[channels.discord]
+token = "your-bot-token"
+```
+
+**Slack:**
+```toml
+[channels.slack]
+bot_token = "xoxb-..."
+app_token = "xapp-..."
+```
+
+**WhatsApp:**
+```toml
+[channels.whatsapp]
+enabled = true
+```
+
+**Matrix:**
+```toml
+[channels.matrix]
+homeserver_url = "https://matrix.org"
+username = "@bot:matrix.org"
+password = "..."
+```
+
+**Signal:**
+```toml
+[channels.signal]
+phone_number = "+1234567890"
+```
+
+### 터널 구성
+
+```toml
+[tunnel]
+kind = "cloudflare"  # 또는 "tailscale", "ngrok", "openvpn", "custom", "none"
+```
+
+상세 정보: [Channel reference](docs/reference/api/channels-reference.md) · [Config reference](docs/reference/api/config-reference.md)
+
+### 현재 런타임 지원
+
+- **`native`** (기본값) — 직접 프로세스 실행, 가장 빠른 경로, 신뢰할 수 있는 환경에 적합.
+- **`docker`** — 완전한 컨테이너 격리, 강화된 보안 정책, Docker 필요.
+
+엄격한 샌드박싱이나 네트워크 격리를 위해 `runtime.kind = "docker"`를 설정하세요.
+
+## Subscription Auth (OpenAI Codex / Claude Code / Gemini)
+
+ZeroClaw는 구독 기반 인증 프로필(다중 계정, 저장 시 암호화)을 지원합니다.
+
+- 저장 파일: `~/.zeroclaw/auth-profiles.json`
+- 암호화 키: `~/.zeroclaw/.secret_key`
+- 프로필 id 형식: `<provider>:<profile_name>` (예: `openai-codex:work`)
+
+```bash
+# OpenAI Codex OAuth (ChatGPT 구독)
+zeroclaw auth login --provider openai-codex --device-code
+
+# Gemini OAuth
+zeroclaw auth login --provider gemini --profile default
+
+# Anthropic setup-token
+zeroclaw auth paste-token --provider anthropic --profile default --auth-kind authorization
+
+# 확인 / 갱신 / 프로필 전환
+zeroclaw auth status
+zeroclaw auth refresh --provider openai-codex --profile default
+zeroclaw auth use --provider openai-codex --profile work
+
+# 구독 인증으로 에이전트 실행
+zeroclaw agent --provider openai-codex -m "hello"
+zeroclaw agent --provider anthropic -m "hello"
+```
+
+## 에이전트 workspace + 스킬
+
+Workspace 루트: `~/.zeroclaw/workspace/` (구성을 통해 변경 가능).
+
+주입되는 프롬프트 파일:
+- `IDENTITY.md` — 에이전트 성격과 역할
+- `USER.md` — 사용자 컨텍스트와 선호도
+- `MEMORY.md` — 장기 사실과 교훈
+- `AGENTS.md` — 세션 규칙과 초기화 규칙
+- `SOUL.md` — 핵심 정체성과 운영 원칙
+
+스킬: `~/.zeroclaw/workspace/skills/<skill>/SKILL.md` 또는 `SKILL.toml`.
+
+```bash
+# 설치된 스킬 목록
+zeroclaw skills list
+
+# git에서 설치
+zeroclaw skills install https://github.com/user/my-skill.git
+
+# 설치 전 보안 감사
+zeroclaw skills audit https://github.com/user/my-skill.git
+
+# 스킬 제거
+zeroclaw skills remove my-skill
+```
+
+## CLI 명령어
+
+```bash
+# Workspace 관리
+zeroclaw onboard              # 안내된 설정 마법사
+zeroclaw status               # 데몬/에이전트 상태 표시
+zeroclaw doctor               # 시스템 진단 실행
+
+# Gateway + 데몬
+zeroclaw gateway              # Gateway 서버 시작 (127.0.0.1:42617)
+zeroclaw daemon               # 완전 자율 런타임 시작
+
+# 에이전트
+zeroclaw agent                # 대화형 채팅 모드
+zeroclaw agent -m "message"   # 단일 메시지 모드
+
+# 서비스 관리
+zeroclaw service install      # OS 서비스로 설치 (launchd/systemd)
+zeroclaw service start|stop|restart|status
+
+# 채널
+zeroclaw channel list         # 구성된 채널 목록
+zeroclaw channel doctor       # 채널 상태 확인
+zeroclaw channel bind-telegram 123456789
+
+# Cron + 스케줄링
+zeroclaw cron list            # 예약된 작업 목록
+zeroclaw cron add "*/5 * * * *" --prompt "Check system health"
+zeroclaw cron remove <id>
+
+# 메모리
+zeroclaw memory list          # 메모리 항목 목록
+zeroclaw memory get <key>     # 메모리 조회
+zeroclaw memory stats         # 메모리 통계
+
+# 인증 프로필
+zeroclaw auth login --provider <name>
+zeroclaw auth status
+zeroclaw auth use --provider <name> --profile <profile>
+
+# 하드웨어 주변기기
+zeroclaw hardware discover    # 연결된 기기 스캔
+zeroclaw peripheral list      # 연결된 주변기기 목록
+zeroclaw peripheral flash     # 기기에 펌웨어 플래시
+
+# 마이그레이션
+zeroclaw migrate openclaw --dry-run
+zeroclaw migrate openclaw
+
+# 셸 자동완성
+source <(zeroclaw completions bash)
+zeroclaw completions zsh > ~/.zfunc/_zeroclaw
+```
+
+전체 명령어 참조: [docs/reference/cli/commands-reference.md](docs/reference/cli/commands-reference.md)
+
+<!-- markdownlint-disable MD001 MD024 -->
 
 ## 사전 요구사항
 
 <details>
 <summary><strong>Windows</strong></summary>
 
-### Windows — 필수
+#### 필수
 
-1. **Visual Studio Build Tools**(MSVC 링커 및 Windows SDK 제공):
+1. **Visual Studio Build Tools** (MSVC 링커와 Windows SDK 제공):
 
     ```powershell
     winget install Microsoft.VisualStudio.2022.BuildTools
@@ -167,7 +527,7 @@ ls -lh target/release/zeroclaw
     winget install Rustlang.Rustup
     ```
 
-    설치 후, 새 터미널을 열고 `rustup default stable`을 실행하여 안정적인 툴체인이 활성화되어 있는지 확인하세요.
+    설치 후 새 터미널을 열고 `rustup default stable`을 실행하여 stable 툴체인이 활성화되었는지 확인하세요.
 
 3. **확인:** 둘 다 작동하는지 확인:
     ```powershell
@@ -175,18 +535,18 @@ ls -lh target/release/zeroclaw
     cargo --version
     ```
 
-### Windows — 선택사항
+#### 선택사항
 
-- **Docker Desktop** — [Docker 샌드박스 런타임](#현재-런타임-지원)을 사용하는 경우에만 필요(`runtime.kind = "docker"`). `winget install Docker.DockerDesktop`을 통해 설치.
+- **Docker Desktop** — [Docker 샌드박스 런타임](#현재-런타임-지원)을 사용하는 경우에만 필요 (`runtime.kind = "docker"`). `winget install Docker.DockerDesktop`으로 설치.
 
 </details>
 
 <details>
 <summary><strong>Linux / macOS</strong></summary>
 
-### Linux / macOS — 필수
+#### 필수
 
-1. **필수 빌드 도구:**
+1. **빌드 필수 도구:**
     - **Linux (Debian/Ubuntu):** `sudo apt install build-essential pkg-config`
     - **Linux (Fedora/RHEL):** `sudo dnf group install development-tools && sudo dnf install pkg-config`
     - **macOS:** Xcode Command Line Tools 설치: `xcode-select --install`
@@ -199,666 +559,152 @@ ls -lh target/release/zeroclaw
 
     자세한 내용은 [rustup.rs](https://rustup.rs)를 참조하세요.
 
-3. **확인:**
+3. **확인:** 둘 다 작동하는지 확인:
     ```bash
     rustc --version
     cargo --version
     ```
 
-### Linux / macOS — 선택사항
+#### 한 줄 설치
 
-- **Docker** — [Docker 샌드박스 런타임](#현재-런타임-지원)을 사용하는 경우에만 필요(`runtime.kind = "docker"`).
-    - **Linux (Debian/Ubuntu):** [docs.docker.com](https://docs.docker.com/engine/install/ubuntu/) 참조
-    - **Linux (Fedora/RHEL):** [docs.docker.com](https://docs.docker.com/engine/install/fedora/) 참조
-    - **macOS:** [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/)에서 Docker Desktop 설치
+위 단계를 건너뛰고 모든 것(시스템 의존성, Rust, ZeroClaw)을 한 번에 설치:
+
+```bash
+curl -LsSf https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/master/install.sh | bash
+```
+
+#### 컴파일 리소스 요구사항
+
+소스에서 빌드하려면 결과 바이너리를 실행하는 것보다 더 많은 리소스가 필요합니다:
+
+| 리소스 | 최소 | 권장 |
+| -------------- | ------- | ----------- |
+| **RAM + swap** | 2 GB    | 4 GB+       |
+| **여유 디스크**  | 6 GB    | 10 GB+      |
+
+호스트가 최소 사양 미만인 경우 사전 빌드 바이너리를 사용하세요:
+
+```bash
+./install.sh --prefer-prebuilt
+```
+
+소스 빌드 폴백 없이 바이너리만 설치:
+
+```bash
+./install.sh --prebuilt-only
+```
+
+#### 선택사항
+
+- **Docker** — [Docker 샌드박스 런타임](#현재-런타임-지원)을 사용하는 경우에만 필요 (`runtime.kind = "docker"`). 패키지 관리자 또는 [docker.com](https://docs.docker.com/engine/install/)을 통해 설치.
+
+> **참고:** 기본 `cargo build --release`는 `codegen-units=1`을 사용하여 피크 컴파일 압력을 낮춥니다. 성능이 좋은 머신에서 더 빠른 빌드를 위해 `cargo build --profile release-fast`를 사용하세요.
 
 </details>
 
-## 빠른 시작
+<!-- markdownlint-enable MD001 MD024 -->
 
-### 옵션 1: 자동 설정 (권장)
+### 사전 빌드 바이너리
 
-`bootstrap.sh` 스크립트는 Rust를 설치하고, ZeroClaw를 클론하고, 컴파일하고, 초기 개발 환경을 설정합니다:
+릴리스 에셋은 다음 플랫폼에 게시됩니다:
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/master/bootstrap.sh | bash
-```
+- Linux: `x86_64`, `aarch64`, `armv7`
+- macOS: `x86_64`, `aarch64`
+- Windows: `x86_64`
 
-이 작업은 다음을 수행합니다:
+최신 에셋 다운로드:
+<https://github.com/zeroclaw-labs/zeroclaw/releases/latest>
 
-1. Rust 설치 (없는 경우)
-2. ZeroClaw 저장소 클론
-3. ZeroClaw를 릴리스 모드로 컴파일
-4. `~/.cargo/bin/`에 `zeroclaw` 설치
-5. `~/.zeroclaw/workspace/`에 기본 작업공간 구조 생성
-6. 시작용 `~/.zeroclaw/workspace/config.toml` 구성 파일 생성
+## 문서
 
-부트스트랩 후, 셸을 다시 로드하거나 `source ~/.cargo/env`를 실행하여 `zeroclaw` 명령을 전역으로 사용하세요.
+온보딩을 마친 후 더 깊은 참조가 필요할 때 사용하세요.
 
-### 옵션 2: 수동 설치
+- [문서 인덱스](docs/README.md)에서 탐색과 "무엇이 어디에 있는지"를 확인하세요.
+- [아키텍처 개요](docs/architecture.md)에서 전체 시스템 모델을 확인하세요.
+- [구성 참조](docs/reference/api/config-reference.md)에서 모든 키와 예제를 확인하세요.
+- [운영 런북](docs/ops/operations-runbook.md)으로 Gateway를 운영하세요.
+- [ZeroClaw Onboard](#빠른-시작-tldr)를 따라 안내된 설정을 진행하세요.
+- [문제 해결 가이드](docs/ops/troubleshooting.md)로 일반적인 오류를 디버그하세요.
+- 노출하기 전에 [보안 가이드](docs/security/README.md)를 검토하세요.
 
-<details>
-<summary><strong>클릭하여 수동 설치 단계 보기</strong></summary>
-
-```bash
-# 1. 저장소 클론
-git clone https://github.com/zeroclaw-labs/zeroclaw.git
-cd zeroclaw
-
-# 2. 릴리스로 컴파일
-cargo build --release --locked
-
-# 3. 바이너리 설치
-cargo install --path . --locked
-
-# 4. 작업공간 초기화
-zeroclaw init
-
-# 5. 설치 확인
-zeroclaw --version
-zeroclaw status
-```
-
-</details>
-
-### 설치 후
-
-설치 후(부트스트랩 또는 수동), 다음이 표시되어야 합니다:
-
-```
-~/.zeroclaw/workspace/
-├── config.toml          # 메인 구성
-├── .pairing             # 페어링 시크릿 (첫 실행 시 생성)
-├── logs/                # 데몬/에이전트 로그
-├── skills/              # 사용자 정의 스킬
-└── memory/              # 대화 컨텍스트 저장소
-```
-
-**다음 단계:**
-
-1. `~/.zeroclaw/workspace/config.toml`에서 AI 제공자 구성
-2. 고급 옵션은 [구성 참조](docs/config-reference.md) 확인
-3. 에이전트 시작: `zeroclaw agent start`
-4. 선호하는 채널을 통해 테스트 ([채널 참조](docs/channels-reference.md) 참조)
-
-## 구성
-
-제공자, 채널 및 시스템 동작을 구성하려면 `~/.zeroclaw/workspace/config.toml`을 편집하세요.
-
-### 빠른 구성 참조
-
-```toml
-[providers.anthropic]
-api_key = "sk-ant-..."
-model = "claude-sonnet-4-20250514"
-
-[providers.openai]
-api_key = "sk-..."
-model = "gpt-4o"
-
-[channels.telegram]
-enabled = true
-bot_token = "123456:ABC-DEF..."
-
-[channels.matrix]
-enabled = true
-homeserver_url = "https://matrix.org"
-username = "@bot:matrix.org"
-password = "..."
-
-[memory]
-kind = "markdown"  # 또는 "sqlite" 또는 "none"
-
-[runtime]
-kind = "native"    # 또는 "docker" (Docker 필요)
-```
-
-**전체 참조 문서:**
-
-- [구성 참조](docs/config-reference.md) — 모든 설정, 검증, 기본값
-- [제공자 참조](docs/providers-reference.md) — AI 제공자별 구성
-- [채널 참조](docs/channels-reference.md) — Telegram, Matrix, Slack, Discord 등
-- [운영](docs/operations-runbook.md) — 프로덕션 모니터링, 시크릿 교체, 스케일링
-
-### 현재 런타임 지원
-
-ZeroClaw는 두 가지 코드 실행 백엔드를 지원합니다:
-
-- **`native`**(기본값) — 직접 프로세스 실행, 가장 빠른 경로, 신뢰할 수 있는 환경에 이상적
-- **`docker`** — 전체 컨테이너 격리, 강화된 보안 정책, Docker 필요
-
-엄격한 샌드박싱이나 네트워크 격리가 필요한 경우 `runtime.kind = "docker"`를 사용하세요. 자세한 내용은 [구성 참조](docs/config-reference.md#runtime)를 참조하세요.
-
-## 명령어
-
-```bash
-# 작업공간 관리
-zeroclaw init                # 새 작업공간 초기화
-zeroclaw status              # 데몬/에이전트 상태 표시
-zeroclaw config validate     # config.toml 구문 및 값 확인
-
-# 데몬 관리
-zeroclaw daemon start        # 백그라운드에서 데몬 시작
-zeroclaw daemon stop         # 실행 중인 데몬 중지
-zeroclaw daemon restart      # 데몬 재시작 (구성 다시 로드)
-zeroclaw daemon logs         # 데몬 로그 표시
-
-# 에이전트 관리
-zeroclaw agent start         # 에이전트 시작 (데몬 실행 중 필요)
-zeroclaw agent stop          # 에이전트 중지
-zeroclaw agent restart       # 에이전트 재시작 (구성 다시 로드)
-
-# 페어링 작업
-zeroclaw pairing init        # 새 페어링 시크릿 생성
-zeroclaw pairing rotate      # 기존 페어링 시크릿 교체
-
-# 터널링 (공개 노출용)
-zeroclaw tunnel start        # 로컬 데몬으로 터널 시작
-zeroclaw tunnel stop         # 활성 터널 중지
-
-# 진단
-zeroclaw doctor              # 시스템 상태 검사 실행
-zeroclaw version             # 버전 및 빌드 정보 표시
-```
-
-전체 옵션 및 예제는 [명령어 참조](docs/commands-reference.md)를 참조하세요.
-
-## 아키텍처
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        채널 (트레이트)                           │
-│  Telegram │ Matrix │ Slack │ Discord │ Web │ CLI │ Custom       │
-└─────────────────────────┬───────────────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      에이전트 오케스트레이터                      │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
-│  │   메시지      │  │   컨텍스트   │  │    도구      │          │
-│  │   라우팅      │  │   메모리     │  │   실행       │          │
-│  └──────────────┘  └──────────────┘  └──────────────┘          │
-└─────────────────────────┬───────────────────────────────────────┘
-                          │
-          ┌───────────────┼───────────────┐
-          ▼               ▼               ▼
-┌──────────────┐  ┌──────────────┐  ┌──────────────┐
-│   제공자     │  │   메모리     │  │    도구      │
-│   (트레이트)  │  │   (트레이트) │  │   (트레이트) │
-├──────────────┤  ├──────────────┤  ├──────────────┤
-│  Anthropic   │  │   Markdown   │  │  Filesystem  │
-│   OpenAI     │  │    SQLite    │  │     Bash     │
-│   Gemini     │  │     None     │  │   Web Fetch  │
-│   Ollama     │  │    Custom    │  │   Custom     │
-│   Custom     │  └──────────────┘  └──────────────┘
-└──────────────┘
-          │
-          ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                   런타임 (트레이트)                                │
-│                  Native │ Docker                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-**핵심 원칙:**
-
-- 모든 것이 **트레이트**입니다 — 제공자, 채널, 도구, 메모리, 터널
-- 채널이 오케스트레이터를 호출; 오케스트레이터가 제공자 + 도구를 호출
-- 메모리 시스템이 대화 컨텍스트 관리(markdown, SQLite, 또는 없음)
-- 런타임이 코드 실행 추상화(네이티브 또는 Docker)
-- 제공자 락인 없음 — 코드 변경 없이 Anthropic ↔ OpenAI ↔ Gemini ↔ Ollama 교체
-
-자세한 다이어그램과 구현 세부 정보는 [아키텍처 문서](docs/architecture.svg)를 참조하세요.
-
-## 예제
-
-### 텔레그램 봇
-
-```toml
-[channels.telegram]
-enabled = true
-bot_token = "123456:ABC-DEF..."
-allowed_users = [987654321]  # 당신의 텔레그램 사용자 ID
-```
-
-데몬 + 에이전트를 시작한 다음 텔레그램에서 봇에 메시지를 보내세요:
-
-```
-/start
-안녕하세요! Python 스크립트 작성을 도와주실 수 있나요?
-```
-
-봇이 AI가 생성한 코드로 응답하고, 요청 시 도구를 실행하며, 대화 컨텍스트를 유지합니다.
-
-### Matrix (종단 간 암호화)
-
-```toml
-[channels.matrix]
-enabled = true
-homeserver_url = "https://matrix.org"
-username = "@zeroclaw:matrix.org"
-password = "..."
-device_name = "zeroclaw-prod"
-e2ee_enabled = true
-```
-
-암호화된 방에 `@zeroclaw:matrix.org`를 초대하면 봇이 완전한 암호화로 응답합니다. 장치 확인 설정은 [Matrix E2EE 가이드](docs/matrix-e2ee-guide.md)를 참조하세요.
-
-### 다중 제공자
-
-```toml
-[providers.anthropic]
-enabled = true
-api_key = "sk-ant-..."
-model = "claude-sonnet-4-20250514"
-
-[providers.openai]
-enabled = true
-api_key = "sk-..."
-model = "gpt-4o"
-
-[orchestrator]
-default_provider = "anthropic"
-fallback_providers = ["openai"]  # 제공자 오류 시 장애 조치
-```
-
-Anthropic이 실패하거나 속도 제한이 걸리면 오케스트레이터가 자동으로 OpenAI로 장애 조치합니다.
-
-### 사용자 정의 메모리
-
-```toml
-[memory]
-kind = "sqlite"
-path = "~/.zeroclaw/workspace/memory/conversations.db"
-retention_days = 90  # 90일 후 자동 삭제
-```
-
-또는 사람이 읽을 수 있는 저장소를 위해 Markdown을 사용하세요:
-
-```toml
-[memory]
-kind = "markdown"
-path = "~/.zeroclaw/workspace/memory/"
-```
-
-모든 메모리 옵션은 [구성 참조](docs/config-reference.md#memory)를 참조하세요.
-
-## 제공자 지원
-
-| 제공자       | 상태      | API 키             | 예제 모델                                      |
-| ----------------- | ----------- | ------------------- | ---------------------------------------------------- |
-| **Anthropic**     | ✅ 안정   | `ANTHROPIC_API_KEY` | `claude-sonnet-4-20250514`, `claude-opus-4-20250514` |
-| **OpenAI**        | ✅ 안정   | `OPENAI_API_KEY`    | `gpt-4o`, `gpt-4o-mini`, `o1`, `o1-mini`             |
-| **Google Gemini** | ✅ 안정   | `GOOGLE_API_KEY`    | `gemini-2.0-flash-exp`, `gemini-exp-1206`            |
-| **Ollama**        | ✅ 안정   | N/A (로컬)         | `llama3.3`, `qwen2.5`, `phi4`                        |
-| **Cerebras**      | ✅ 안정   | `CEREBRAS_API_KEY`  | `llama-3.3-70b`                                      |
-| **Groq**          | ✅ 안정   | `GROQ_API_KEY`      | `llama-3.3-70b-versatile`                            |
-| **Mistral**       | 🚧 계획 중 | `MISTRAL_API_KEY`   | TBD                                                  |
-| **Cohere**        | 🚧 계획 중 | `COHERE_API_KEY`    | TBD                                                  |
-
-### 사용자 정의 엔드포인트
-
-ZeroClaw는 OpenAI 호환 엔드포인트를 지원합니다:
-
-```toml
-[providers.custom]
-enabled = true
-api_key = "..."
-base_url = "https://api.your-llm-provider.com/v1"
-model = "your-model-name"
-```
-
-예: [LiteLLM](https://github.com/BerriAI/litellm)을 프록시로 사용하여 OpenAI 인터페이스를 통해 모든 LLM에 액세스.
-
-전체 구성 세부 정보는 [제공자 참조](docs/providers-reference.md)를 참조하세요.
-
-## 채널 지원
-
-| 채널        | 상태      | 인증         | 참고                                                     |
-| ------------ | ----------- | ------------------------ | --------------------------------------------------------- |
-| **Telegram** | ✅ 안정   | 봇 토큰                | 파일, 이미지, 인라인 버튼 포함 전체 지원             |
-| **Matrix**   | ✅ 안정   | 비밀번호 또는 토큰    | 장치 확인과 함께 E2EE 지원              |
-| **Slack**    | 🚧 계획 중 | OAuth 또는 봇 토큰       | 작업공간 액세스 필요                                    |
-| **Discord**  | 🚧 계획 중 | 봇 토큰                | 길드 권한 필요                                |
-| **WhatsApp** | 🚧 계획 중 | Twilio 또는 공식 API | 비즈니스 계정 필요                                    |
-| **CLI**      | ✅ 안정   | 없음                    | 직접 대화형 인터페이스                       |
-| **Web**      | 🚧 계획 중 | API 키 또는 OAuth         | 브라우저 기반 채팅 인터페이스                        |
-
-전체 구성 지침은 [채널 참조](docs/channels-reference.md)를 참조하세요.
-
-## 도구 지원
-
-ZeroClaw는 코드 실행, 파일 시스템 액세스 및 웹 검색을 위한 기본 제공 도구를 제공합니다:
-
-| 도구                | 설명                 | 필수 런타임                |
-| -------------------- | --------------------------- | ----------------------------- |
-| **bash**             | 셸 명령 실행 | 네이티브 또는 Docker              |
-| **python**           | Python 스크립트 실행  | Python 3.8+ (네이티브) 또는 Docker |
-| **javascript**       | Node.js 코드 실행     | Node.js 18+ (네이티브) 또는 Docker |
-| **filesystem_read**  | 파일 읽기            | 네이티브 또는 Docker              |
-| **filesystem_write** | 파일 쓰기          | 네이티브 또는 Docker              |
-| **web_fetch**        | 웹 콘텐츠 가져오기     | 네이티브 또는 Docker              |
-
-### 실행 보안
-
-- **네이티브 런타임** — 데몬의 사용자 프로세스로 실행, 파일 시스템에 전체 액세스
-- **Docker 런타임** — 전체 컨테이너 격리, 별도의 파일 시스템 및 네트워크
-
-`config.toml`에서 실행 정책을 구성하세요:
-
-```toml
-[runtime]
-kind = "docker"
-allowed_tools = ["bash", "python", "filesystem_read"]  # 명시적 허용 목록
-```
-
-전체 보안 옵션은 [구성 참조](docs/config-reference.md#runtime)를 참조하세요.
-
-## 배포
-
-### 로컬 배포 (개발)
-
-```bash
-zeroclaw daemon start
-zeroclaw agent start
-```
-
-### 서버 배포 (프로덕션)
-
-systemd를 사용하여 데몬과 에이전트를 서비스로 관리하세요:
-
-```bash
-# 바이너리 설치
-cargo install --path . --locked
-
-# 작업공간 구성
-zeroclaw init
-
-# systemd 서비스 파일 생성
-sudo cp deployment/systemd/zeroclaw-daemon.service /etc/systemd/system/
-sudo cp deployment/systemd/zeroclaw-agent.service /etc/systemd/system/
-
-# 서비스 활성화 및 시작
-sudo systemctl enable zeroclaw-daemon zeroclaw-agent
-sudo systemctl start zeroclaw-daemon zeroclaw-agent
-
-# 상태 확인
-sudo systemctl status zeroclaw-daemon
-sudo systemctl status zeroclaw-agent
-```
-
-전체 프로덕션 배포 지침은 [네트워크 배포 가이드](docs/network-deployment.md)를 참조하세요.
-
-### Docker
-
-```bash
-# 이미지 빌드
-docker build -t zeroclaw:latest .
-
-# 컨테이너 실행
-docker run -d \
-  --name zeroclaw \
-  -v ~/.zeroclaw/workspace:/workspace \
-  -e ANTHROPIC_API_KEY=sk-ant-... \
-  zeroclaw:latest
-```
-
-빌드 세부 정보 및 구성 옵션은 [`Dockerfile`](Dockerfile)을 참조하세요.
-
-### 엣지 하드웨어
-
-ZeroClaw는 저전력 하드웨어에서 실행되도록 설계되었습니다:
-
-- **Raspberry Pi Zero 2 W** — ~512 MB RAM, 단일 ARMv8 코어, < $5 하드웨어 비용
-- **Raspberry Pi 4/5** — 1 GB+ RAM, 멀티코어, 동시 워크로드에 이상적
-- **Orange Pi Zero 2** — ~512 MB RAM, 쿼드코어 ARMv8, 초저비용
-- **x86 SBCs (Intel N100)** — 4-8 GB RAM, 빠른 빌드, 네이티브 Docker 지원
-
-장치별 설정 지침은 [하드웨어 가이드](docs/hardware/README.md)를 참조하세요.
-
-## 터널링 (공개 노출)
-
-보안 터널을 통해 로컬 ZeroClaw 데몬을 공개 네트워크에 노출하세요:
-
-```bash
-zeroclaw tunnel start --provider cloudflare
-```
-
-지원되는 터널 제공자:
-
-- **Cloudflare Tunnel** — 무료 HTTPS, 포트 노출 없음, 멀티 도메인 지원
-- **Ngrok** — 빠른 설정, 사용자 정의 도메인 (유료 플랜)
-- **Tailscale** — 프라이빗 메시 네트워크, 공개 포트 없음
-
-전체 구성 옵션은 [구성 참조](docs/config-reference.md#tunnel)를 참조하세요.
-
-## 보안
-
-ZeroClaw는 여러 보안 계층을 구현합니다:
-
-### 페어링
-
-데몬은 첫 실행 시 `~/.zeroclaw/workspace/.pairing`에 저장된 페어링 시크릿을 생성합니다. 클라이언트(에이전트, CLI)는 연결하기 위해 이 시크릿을 제시해야 합니다.
-
-```bash
-zeroclaw pairing rotate  # 새 시크릿 생성 및 이전 것 무효화
-```
-
-### 샌드박싱
-
-- **Docker 런타임** — 별도의 파일 시스템 및 네트워크로 전체 컨테이너 격리
-- **네이티브 런타임** — 사용자 프로세스로 실행, 기본적으로 작업공간으로 범위 지정
-
-### 허용 목록
-
-채널은 사용자 ID로 액세스를 제한할 수 있습니다:
-
-```toml
-[channels.telegram]
-enabled = true
-allowed_users = [123456789, 987654321]  # 명시적 허용 목록
-```
-
-### 암호화
-
-- **Matrix E2EE** — 장치 확인과 함께 완전한 종단 간 암호화
-- **TLS 전송** — 모든 API 및 터널 트래픽이 HTTPS/TLS 사용
-
-전체 정책 및 관행은 [보안 문서](docs/security/README.md)를 참조하세요.
-
-## 관찰 가능성
-
-ZeroClaw는 기본적으로 `~/.zeroclaw/workspace/logs/`에 로그를 기록합니다. 로그는 구성 요소별로 저장됩니다:
-
-```
-~/.zeroclaw/workspace/logs/
-├── daemon.log           # 데몬 로그 (시작, API 요청, 오류)
-├── agent.log            # 에이전트 로그 (메시지 라우팅, 도구 실행)
-├── telegram.log         # 채널별 로그 (활성화된 경우)
-└── matrix.log           # 채널별 로그 (활성화된 경우)
-```
-
-### 로깅 구성
-
-```toml
-[logging]
-level = "info"                           # debug, info, warn, error
-path = "~/.zeroclaw/workspace/logs/"
-rotation = "daily"                       # daily, hourly, size
-max_size_mb = 100                        # 크기 기반 회전용
-retention_days = 30                      # N일 후 자동 삭제
-```
-
-모든 로깅 옵션은 [구성 참조](docs/config-reference.md#logging)를 참조하세요.
-
-### 메트릭 (계획 중)
-
-프로덕션 모니터링을 위한 Prometheus 메트릭 지원이 곧 제공됩니다. [#234](https://github.com/zeroclaw-labs/zeroclaw/issues/234)에서 추적 중.
-
-## 스킬 (Skills)
-
-ZeroClaw는 시스템 기능을 확장하는 재사용 가능한 모듈인 사용자 정의 스킬을 지원합니다.
-
-### 스킬 정의
-
-스킬은 다음 구조로 `~/.zeroclaw/workspace/skills/<skill-name>/`에 저장됩니다:
-
-```
-skills/
-└── my-skill/
-    ├── skill.toml       # 스킬 메타데이터 (이름, 설명, 의존성)
-    ├── prompt.md        # AI용 시스템 프롬프트
-    └── tools/           # 선택적 사용자 정의 도구
-        └── my_tool.py
-```
-
-### 스킬 예제
-
-```toml
-# skills/web-research/skill.toml
-[skill]
-name = "web-research"
-description = "웹 검색 및 결과 요약"
-version = "1.0.0"
-
-[dependencies]
-tools = ["web_fetch", "bash"]
-```
-
-```markdown
-<!-- skills/web-research/prompt.md -->
-
-당신은 연구 어시스턴트입니다. 무언가를 검색하라는 요청을 받으면:
-
-1. web_fetch를 사용하여 콘텐츠 가져오기
-2. 읽기 쉬운 형식으로 결과 요약
-3. URL로 출처 인용
-```
-
-### 스킬 사용
-
-스킬은 에이전트 시작 시 자동으로 로드됩니다. 대화에서 이름으로 참조하세요:
-
-```
-사용자: 웹 연구 스킬을 사용하여 최신 AI 뉴스 찾기
-봇: [웹 연구 스킬 로드, web_fetch 실행, 결과 요약]
-```
-
-전체 스킬 생성 지침은 [스킬 (Skills)](#스킬-skills) 섹션을 참조하세요.
-
-## Open Skills
-
-ZeroClaw는 [Open Skills](https://github.com/openagents-com/open-skills)를 지원합니다 — AI 에이전트 기능을 확장하기 위한 모듈형 및 제공자 독립적인 시스템.
-
-### Open Skills 활성화
-
-```toml
-[skills]
-open_skills_enabled = true
-# open_skills_dir = "/path/to/open-skills"  # 선택사항
-```
-
-런타임에 `ZEROCLAW_OPEN_SKILLS_ENABLED` 및 `ZEROCLAW_OPEN_SKILLS_DIR`로 재정의할 수도 있습니다.
-
-## 개발
-
-```bash
-cargo build              # 개발 빌드
-cargo build --release    # 릴리스 빌드 (codegen-units=1, Raspberry Pi 포함 모든 장치에서 작동)
-cargo build --profile release-fast    # 더 빠른 빌드 (codegen-units=8, 16 GB+ RAM 필요)
-cargo test               # 전체 테스트 스위트 실행
-cargo clippy --locked --all-targets -- -D clippy::correctness
-cargo fmt                # 포맷
-
-# SQLite vs Markdown 비교 벤치마크 실행
-cargo test --test memory_comparison -- --nocapture
-```
-
-### pre-push 훅
-
-git 훅이 각 푸시 전에 `cargo fmt --check`, `cargo clippy -- -D warnings`, 그리고 `cargo test`를 실행합니다. 한 번 활성화하세요:
-
-```bash
-git config core.hooksPath .githooks
-```
-
-### 빌드 문제 해결 (Linux에서 OpenSSL 오류)
-
-`openssl-sys` 빌드 오류가 발생하면 종속성을 동기화하고 저장소의 lockfile로 다시 빌드하세요:
-
-```bash
-git pull
-cargo build --release --locked
-cargo install --path . --force --locked
-```
-
-ZeroClaw는 HTTP/TLS 종속성에 대해 `rustls`를 사용하도록 구성되어 있습니다; `--locked`는 깨끗한 환경에서 전이적 그래프를 결정적으로 유지합니다.
-
-개발 중 빠른 푸시가 필요할 때 훅을 건너뛰려면:
-
-```bash
-git push --no-verify
-```
-
-## 협업 및 문서
-
-작업 기반 맵을 위해 문서 허브로 시작하세요:
-
-- 문서 허브: [`docs/README.md`](docs/README.md)
-- 통합 문서 목차: [`docs/SUMMARY.md`](docs/SUMMARY.md)
-- 명령어 참조: [`docs/commands-reference.md`](docs/commands-reference.md)
-- 구성 참조: [`docs/config-reference.md`](docs/config-reference.md)
-- 제공자 참조: [`docs/providers-reference.md`](docs/providers-reference.md)
-- 채널 참조: [`docs/channels-reference.md`](docs/channels-reference.md)
-- 운영 런북: [`docs/operations-runbook.md`](docs/operations-runbook.md)
-- 문제 해결: [`docs/troubleshooting.md`](docs/troubleshooting.md)
-- 문서 인벤토리/분류: [`docs/docs-inventory.md`](docs/docs-inventory.md)
-- PR/이슈 트리아지 스냅샷 (2026년 2월 18일 기준): [`docs/project-triage-snapshot-2026-02-18.md`](docs/project-triage-snapshot-2026-02-18.md)
-
-주요 협업 참조:
+### 참조 문서
 
 - 문서 허브: [docs/README.md](docs/README.md)
-- 문서 템플릿: [docs/doc-template.md](docs/doc-template.md)
-- 문서 변경 체크리스트: [docs/README.md#4-documentation-change-checklist](docs/README.md#4-documentation-change-checklist)
-- 채널 구성 참조: [docs/channels-reference.md](docs/channels-reference.md)
-- Matrix 암호화 방 운영: [docs/matrix-e2ee-guide.md](docs/matrix-e2ee-guide.md)
+- 통합 문서 목차: [docs/SUMMARY.md](docs/SUMMARY.md)
+- 명령어 참조: [docs/reference/cli/commands-reference.md](docs/reference/cli/commands-reference.md)
+- 구성 참조: [docs/reference/api/config-reference.md](docs/reference/api/config-reference.md)
+- 제공자 참조: [docs/reference/api/providers-reference.md](docs/reference/api/providers-reference.md)
+- 채널 참조: [docs/reference/api/channels-reference.md](docs/reference/api/channels-reference.md)
+- 운영 런북: [docs/ops/operations-runbook.md](docs/ops/operations-runbook.md)
+- 문제 해결: [docs/ops/troubleshooting.md](docs/ops/troubleshooting.md)
+
+### 협업 문서
+
 - 기여 가이드: [CONTRIBUTING.md](CONTRIBUTING.md)
-- PR 워크플로 정책: [docs/pr-workflow.md](docs/pr-workflow.md)
-- 리뷰어 플레이북 (트리아지 + 심층 리뷰): [docs/reviewer-playbook.md](docs/reviewer-playbook.md)
-- 소유권 및 CI 트리아지 맵: [docs/ci-map.md](docs/ci-map.md)
+- PR 워크플로 정책: [docs/contributing/pr-workflow.md](docs/contributing/pr-workflow.md)
+- CI 워크플로 가이드: [docs/contributing/ci-map.md](docs/contributing/ci-map.md)
+- 리뷰어 플레이북: [docs/contributing/reviewer-playbook.md](docs/contributing/reviewer-playbook.md)
 - 보안 공개 정책: [SECURITY.md](SECURITY.md)
+- 문서 템플릿: [docs/contributing/doc-template.md](docs/contributing/doc-template.md)
 
-배포 및 런타임 운영용:
+### 배포 + 운영
 
-- 네트워크 배포 가이드: [docs/network-deployment.md](docs/network-deployment.md)
-- 프록시 에이전트 플레이북: [docs/proxy-agent-playbook.md](docs/proxy-agent-playbook.md)
+- 네트워크 배포 가이드: [docs/ops/network-deployment.md](docs/ops/network-deployment.md)
+- 프록시 에이전트 플레이북: [docs/ops/proxy-agent-playbook.md](docs/ops/proxy-agent-playbook.md)
+- 하드웨어 가이드: [docs/hardware/README.md](docs/hardware/README.md)
+
+## Smooth Crab 🦀
+
+ZeroClaw는 빠르고 효율적인 AI 어시스턴트인 smooth crab 🦀을 위해 만들어졌습니다. Argenis De La Rosa와 커뮤니티가 만들었습니다.
+
+- [zeroclawlabs.ai](https://zeroclawlabs.ai)
+- [@zeroclawlabs](https://x.com/zeroclawlabs)
 
 ## ZeroClaw 지원하기
 
-ZeroClaw가 당신의 작업에 도움이 되었고 지속적인 개발을 지원하고 싶다면 여기에서 기부할 수 있습니다:
+ZeroClaw가 여러분의 작업에 도움이 되었고 지속적인 개발을 지원하고 싶다면 여기에서 기부할 수 있습니다:
 
-<a href="https://buymeacoffee.com/argenistherose"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Donate-yellow.svg?style=for-the-badge&logo=buy-me-a-coffee" alt="커피 한 잔 사주기" /></a>
+<a href="https://buymeacoffee.com/argenistherose"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Donate-yellow.svg?style=for-the-badge&logo=buy-me-a-coffee" alt="Buy Me a Coffee" /></a>
 
 ### 🙏 특별 감사
 
-이 오픈소스 작업에 영감을 주고 지원하는 커뮤니티와 기관에 진심으로 감사드립니다:
+이 오픈소스 작업에 영감을 주고 힘을 실어주는 커뮤니티와 기관에 진심으로 감사드립니다:
 
-- **Harvard University** — 지적 호기심을 키우고 가능성의 한계를 넓혀줌.
-- **MIT** — 열린 지식, 오픈소스, 기술이 모두에게 접근 가능해야 한다는 신념을 옹호함.
-- **Sundai Club** — 커뮤니티, 에너지, 그리고 의미 있는 것을 만들고자 하는 끊임없는 의지.
-- **세계 그리고 그 너머** 🌍✨ — 오픈소스를 선한 힘으로 만드는 모든 기여자, 꿈꾸는 자, 그리고 빌더에게. 이것은 여러분을 위한 것입니다.
+- **Harvard University** — 지적 호기심을 키우고 가능성의 한계를 넓혀 주셔서.
+- **MIT** — 열린 지식, 오픈소스, 그리고 기술이 모두에게 접근 가능해야 한다는 신념을 옹호해 주셔서.
+- **Sundai Club** — 커뮤니티, 에너지, 그리고 의미 있는 것을 만들고자 하는 끊임없는 열정.
+- **세계 그리고 그 너머** 🌍✨ — 오픈소스를 선한 힘으로 만드는 모든 기여자, 꿈꾸는 이, 그리고 빌더에게. 이것은 여러분을 위한 것입니다.
 
 우리는 최고의 아이디어가 모든 곳에서 나오기 때문에 오픈소스로 구축합니다. 이것을 읽고 있다면 여러분도 그 일부입니다. 환영합니다. 🦀❤️
+
+## 기여하기
+
+ZeroClaw가 처음이신가요? [`good first issue`](https://github.com/zeroclaw-labs/zeroclaw/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) 레이블이 붙은 이슈를 찾아보세요 — 시작하는 방법은 [기여 가이드](CONTRIBUTING.md#first-time-contributors)를 참조하세요. AI/vibe-coded PR도 환영합니다! 🤖
+
+[CONTRIBUTING.md](CONTRIBUTING.md)와 [CLA.md](docs/contributing/cla.md)를 참조하세요. 트레이트를 구현하고 PR을 제출하세요:
+
+- CI 워크플로 가이드: [docs/contributing/ci-map.md](docs/contributing/ci-map.md)
+- 새 `Provider` → `src/providers/`
+- 새 `Channel` → `src/channels/`
+- 새 `Observer` → `src/observability/`
+- 새 `Tool` → `src/tools/`
+- 새 `Memory` → `src/memory/`
+- 새 `Tunnel` → `src/tunnel/`
+- 새 `Peripheral` → `src/peripherals/`
+- 새 `Skill` → `~/.zeroclaw/workspace/skills/<name>/`
+
+<!-- BEGIN:RECENT_CONTRIBUTORS -->
+<!-- END:RECENT_CONTRIBUTORS -->
 
 ## ⚠️ 공식 저장소 및 사칭 경고
 
 **이것이 유일한 공식 ZeroClaw 저장소입니다:**
 
-> <https://github.com/zeroclaw-labs/zeroclaw>
+> https://github.com/zeroclaw-labs/zeroclaw
 
-"ZeroClaw"라고 주장하거나 ZeroClaw Labs와의 제휴를 암시하는 다른 저장소, 조직, 도메인 또는 패키지는 **승인되지 않았으며 이 프로젝트와 관련이 없습니다**. 알려진 승인되지 않은 포크는 [TRADEMARK.md](TRADEMARK.md)에 나열됩니다.
+"ZeroClaw"라고 주장하거나 ZeroClaw Labs와의 제휴를 암시하는 다른 저장소, 조직, 도메인 또는 패키지는 **승인되지 않았으며 이 프로젝트와 관련이 없습니다**. 알려진 비인가 포크는 [TRADEMARK.md](docs/maintainers/trademark.md)에 나열됩니다.
 
-사칭 또는 상표 오용을 발견하면 [이슈를 열어](https://github.com/zeroclaw-labs/zeroclaw/issues) 신고해 주세요.
+사칭이나 상표 오용을 발견하면 [이슈를 열어](https://github.com/zeroclaw-labs/zeroclaw/issues) 신고해 주세요.
 
 ---
 
@@ -866,16 +712,16 @@ ZeroClaw가 당신의 작업에 도움이 되었고 지속적인 개발을 지�
 
 ZeroClaw는 최대한의 개방성과 기여자 보호를 위해 듀얼 라이선스가 적용됩니다:
 
-| 라이선스                      | 사용 사례                                            |
-| ---------------------------- | ------------------------------------------------------------ |
-| [MIT](LICENSE-MIT)               | 오픈소스, 연구, 학술, 개인 사용          |
+| 라이선스 | 사용 사례 |
+|---|---|
+| [MIT](LICENSE-MIT) | 오픈소스, 연구, 학술, 개인 사용 |
 | [Apache 2.0](LICENSE-APACHE) | 특허 보호, 기관, 상업 배포 |
 
-두 라이선스 중 하나를 선택할 수 있습니다. **기여자는 자동으로 두 가지 모두에 대한 권한을 부여합니다** — 전체 기여자 계약은 [CLA.md](CLA.md)를 참조하세요.
+두 라이선스 중 하나를 선택할 수 있습니다. **기여자는 자동으로 두 가지 모두에 대한 권한을 부여합니다** — 전체 기여자 계약은 [CLA.md](docs/contributing/cla.md)를 참조하세요.
 
 ### 상표
 
-**ZeroClaw** 이름과 로고는 ZeroClaw Labs의 등록 상표입니다. 이 라이선스는 승인 또는 제휴를 암시하기 위해 사용할 수 있는 권한을 부여하지 않습니다. 허용 및 금지된 사용은 [TRADEMARK.md](TRADEMARK.md)를 참조하세요.
+**ZeroClaw** 이름과 로고는 ZeroClaw Labs의 상표입니다. 이 라이선스는 승인이나 제휴를 암시하기 위해 사용할 권한을 부여하지 않습니다. 허용 및 금지 사용은 [TRADEMARK.md](docs/maintainers/trademark.md)를 참조하세요.
 
 ### 기여자 보호
 
@@ -884,22 +730,17 @@ ZeroClaw는 최대한의 개방성과 기여자 보호를 위해 듀얼 라이�
 - 기여는 커밋 기록과 [NOTICE](NOTICE)에 **영구적으로 귀속**됩니다
 - 기여함으로써 상표권이 이전되지 않습니다
 
-## 기여하기
-
-[CONTRIBUTING.md](CONTRIBUTING.md)와 [CLA.md](CLA.md)를 참조하세요. 트레이트를 구현하고 PR을 제출하세요:
-
-- CI 워크플로 가이드: [docs/ci-map.md](docs/ci-map.md)
-- 새 `Provider` → `src/providers/`
-- 새 `Channel` → `src/channels/`
-- 새 `Observer` → `src/observability/`
-- 새 `Tool` → `src/tools/`
-- 새 `Memory` → `src/memory/`
-- 새 `Tunnel` → `src/tunnel/`
-- 새 `Skill` → `~/.zeroclaw/workspace/skills/<n>/`
-
 ---
 
 **ZeroClaw** — 오버헤드 없음. 타협 없음. 어디서나 배포. 무엇이든 교체. 🦀
+
+## 기여자
+
+<a href="https://github.com/zeroclaw-labs/zeroclaw/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=zeroclaw-labs/zeroclaw" alt="ZeroClaw contributors" />
+</a>
+
+이 목록은 GitHub 기여자 그래프에서 생성되며 자동으로 업데이트됩니다.
 
 ## 스타 히스토리
 
@@ -908,7 +749,7 @@ ZeroClaw는 최대한의 개방성과 기여자 보호를 위해 듀얼 라이�
     <picture>
      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=zeroclaw-labs/zeroclaw&type=date&theme=dark&legend=top-left" />
      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=zeroclaw-labs/zeroclaw&type=date&legend=top-left" />
-     <img alt="스타 히스토리 그래프" src="https://api.star-history.com/svg?repos=zeroclaw-labs/zeroclaw&type=date&legend=top-left" />
+     <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=zeroclaw-labs/zeroclaw&type=date&legend=top-left" />
     </picture>
   </a>
 </p>

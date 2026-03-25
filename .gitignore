@@ -1,6 +1,8 @@
 /target
+/target-*/
 firmware/*/target
-web/dist/
+web/dist/*
+!web/dist/.gitkeep
 *.db
 *.db-journal
 .DS_Store
@@ -47,3 +49,9 @@ OpenWRT/openwrt-toolchain-*/
 
 # OpenWRT SDK (will be downloaded in CI)
 OpenWRT/openwrt-sdk-*/
+
+# IDE's stuff
+.idea
+
+# Wrangler cache
+.wrangler/

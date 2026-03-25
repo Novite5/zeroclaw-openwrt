@@ -1,5 +1,6 @@
 use super::traits::{Tool, ToolResult};
 use crate::runtime::RuntimeAdapter;
+use crate::security::traits::Sandbox;
 use crate::security::SecurityPolicy;
 use async_trait::async_trait;
 use serde_json::json;
@@ -7,25 +8,74 @@ use std::collections::HashSet;
 use std::sync::Arc;
 use std::time::Duration;
 
-/// Maximum shell command execution time before kill.
-const SHELL_TIMEOUT_SECS: u64 = 60;
+/// Default maximum shell command execution time before kill.
+const DEFAULT_SHELL_TIMEOUT_SECS: u64 = 60;
 /// Maximum output size in bytes (1MB).
 const MAX_OUTPUT_BYTES: usize = 1_048_576;
+
 /// Environment variables safe to pass to shell commands.
 /// Only functional variables are included — never API keys or secrets.
+#[cfg(not(target_os = "windows"))]
 const SAFE_ENV_VARS: &[&str] = &[
     "PATH", "HOME", "TERM", "LANG", "LC_ALL", "LC_CTYPE", "USER", "SHELL", "TMPDIR",
+];
+
+/// Environment variables safe to pass to shell commands on Windows.
+/// Includes Windows-specific variables needed for cmd.exe and program resolution.
+#[cfg(target_os = "windows")]
+const SAFE_ENV_VARS: &[&str] = &[
+    "PATH",
+    "PATHEXT",
+    "HOME",
+    "USERPROFILE",
+    "HOMEDRIVE",
+    "HOMEPATH",
+    "SYSTEMROOT",
+    "SYSTEMDRIVE",
+    "WINDIR",
+    "COMSPEC",
+    "TEMP",
+    "TMP",
+    "TERM",
+    "LANG",
+    "USERNAME",
 ];
 
 /// Shell command execution tool with sandboxing
 pub struct ShellTool {
     security: Arc<SecurityPolicy>,
     runtime: Arc<dyn RuntimeAdapter>,
+    sandbox: Arc<dyn Sandbox>,
+    timeout_secs: u64,
 }
 
 impl ShellTool {
     pub fn new(security: Arc<SecurityPolicy>, runtime: Arc<dyn RuntimeAdapter>) -> Self {
-        Self { security, runtime }
+        Self {
+            security,
+            runtime,
+            sandbox: Arc::new(crate::security::NoopSandbox),
+            timeout_secs: DEFAULT_SHELL_TIMEOUT_SECS,
+        }
+    }
+
+    pub fn new_with_sandbox(
+        security: Arc<SecurityPolicy>,
+        runtime: Arc<dyn RuntimeAdapter>,
+        sandbox: Arc<dyn Sandbox>,
+    ) -> Self {
+        Self {
+            security,
+            runtime,
+            sandbox,
+            timeout_secs: DEFAULT_SHELL_TIMEOUT_SECS,
+        }
+    }
+
+    /// Override the command execution timeout (in seconds).
+    pub fn with_timeout_secs(mut self, secs: u64) -> Self {
+        self.timeout_secs = secs;
+        self
     }
 }
 
@@ -146,6 +196,14 @@ impl Tool for ShellTool {
                 });
             }
         };
+
+        // Apply sandbox wrapping before execution.
+        // The Sandbox trait operates on std::process::Command, so use as_std_mut()
+        // to get a mutable reference to the underlying command.
+        self.sandbox
+            .wrap_command(cmd.as_std_mut())
+            .map_err(|e| anyhow::anyhow!("Sandbox error: {}", e))?;
+
         cmd.env_clear();
 
         for var in collect_allowed_shell_env_vars(&self.security) {
@@ -154,8 +212,8 @@ impl Tool for ShellTool {
             }
         }
 
-        let result =
-            tokio::time::timeout(Duration::from_secs(SHELL_TIMEOUT_SECS), cmd.output()).await;
+        let timeout_secs = self.timeout_secs;
+        let result = tokio::time::timeout(Duration::from_secs(timeout_secs), cmd.output()).await;
 
         match result {
             Ok(Ok(output)) => {
@@ -199,7 +257,7 @@ impl Tool for ShellTool {
                 success: false,
                 output: String::new(),
                 error: Some(format!(
-                    "Command timed out after {SHELL_TIMEOUT_SECS}s and was killed"
+                    "Command timed out after {timeout_secs}s and was killed"
                 )),
             }),
         }
@@ -555,11 +613,21 @@ mod tests {
             tokio::fs::remove_file(std::env::temp_dir().join("zeroclaw_shell_approval_test")).await;
     }
 
-    // ── §5.2 Shell timeout enforcement tests ─────────────────
+    // ── shell timeout enforcement tests ─────────────────
 
     #[test]
-    fn shell_timeout_constant_is_reasonable() {
-        assert_eq!(SHELL_TIMEOUT_SECS, 60, "shell timeout must be 60 seconds");
+    fn shell_timeout_default_is_reasonable() {
+        assert_eq!(
+            DEFAULT_SHELL_TIMEOUT_SECS, 60,
+            "default shell timeout must be 60 seconds"
+        );
+    }
+
+    #[test]
+    fn shell_timeout_can_be_overridden() {
+        let tool = ShellTool::new(test_security(AutonomyLevel::Supervised), test_runtime())
+            .with_timeout_secs(120);
+        assert_eq!(tool.timeout_secs, 120);
     }
 
     #[test]
@@ -570,7 +638,7 @@ mod tests {
         );
     }
 
-    // ── §5.3 Non-UTF8 binary output tests ────────────────────
+    // ── Non-UTF8 binary output tests ────────────────────
 
     #[test]
     fn shell_safe_env_vars_excludes_secrets() {
@@ -590,8 +658,8 @@ mod tests {
             "PATH must be in safe env vars"
         );
         assert!(
-            SAFE_ENV_VARS.contains(&"HOME"),
-            "HOME must be in safe env vars"
+            SAFE_ENV_VARS.contains(&"HOME") || SAFE_ENV_VARS.contains(&"USERPROFILE"),
+            "HOME or USERPROFILE must be in safe env vars"
         );
         assert!(
             SAFE_ENV_VARS.contains(&"TERM"),
@@ -666,5 +734,60 @@ mod tests {
             r2.error.as_deref().unwrap_or("").contains("Rate limit")
                 || r2.error.as_deref().unwrap_or("").contains("budget")
         );
+    }
+
+    // ── Sandbox integration tests ────────────────────────
+
+    #[test]
+    fn shell_tool_can_be_constructed_with_sandbox() {
+        use crate::security::NoopSandbox;
+
+        let sandbox: Arc<dyn Sandbox> = Arc::new(NoopSandbox);
+        let tool = ShellTool::new_with_sandbox(
+            test_security(AutonomyLevel::Supervised),
+            test_runtime(),
+            sandbox,
+        );
+        assert_eq!(tool.name(), "shell");
+    }
+
+    #[test]
+    fn noop_sandbox_does_not_modify_command() {
+        use crate::security::NoopSandbox;
+
+        let sandbox = NoopSandbox;
+        let mut cmd = std::process::Command::new("echo");
+        cmd.arg("hello");
+
+        let program_before = cmd.get_program().to_os_string();
+        let args_before: Vec<_> = cmd.get_args().map(|a| a.to_os_string()).collect();
+
+        sandbox
+            .wrap_command(&mut cmd)
+            .expect("wrap_command should succeed");
+
+        assert_eq!(cmd.get_program(), program_before);
+        assert_eq!(
+            cmd.get_args().map(|a| a.to_os_string()).collect::<Vec<_>>(),
+            args_before
+        );
+    }
+
+    #[tokio::test]
+    async fn shell_executes_with_sandbox() {
+        use crate::security::NoopSandbox;
+
+        let sandbox: Arc<dyn Sandbox> = Arc::new(NoopSandbox);
+        let tool = ShellTool::new_with_sandbox(
+            test_security(AutonomyLevel::Supervised),
+            test_runtime(),
+            sandbox,
+        );
+        let result = tool
+            .execute(json!({"command": "echo sandbox_test"}))
+            .await
+            .expect("command with sandbox should succeed");
+        assert!(result.success);
+        assert!(result.output.contains("sandbox_test"));
     }
 }

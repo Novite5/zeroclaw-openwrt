@@ -102,7 +102,7 @@ jobs:
         echo "Upstream version: $UPSTREAM_VERSION"
 
         # Update Makefile with upstream version
-        if [ -n "$UPSTREAM_VERSION" ] && [ "$UPSTREAM_VERSION" != "null" ]; then
+        if [ -n "$UPSTREAM_VERSION" ] && [ "$UPSTREAM_VERSION" != null ]; then
           sed -i "s/PKG_VERSION:=.*/PKG_VERSION:=$UPSTREAM_VERSION/" Makefile
           sed -i "s/PKG_SOURCE_DATE:=.*/PKG_SOURCE_DATE:=$(date +%Y-%m-%d)/" Makefile
           echo "Updated Makefile to version $UPSTREAM_VERSION"
@@ -131,7 +131,7 @@ jobs:
           RESPONSE=$(curl -sL --retry 2 --max-time 30 \
             https://api.github.com/repos/zeroclaw-labs/zeroclaw/releases/latest)
 
-          echo "Response length: ${#RESPONSE}"
+          echo "Response length: $(echo "$RESPONSE" | wc -c)"
 
           # Try to extract tag_name using grep/sed as fallback
           RELEASE_TAG=$(echo "$RESPONSE" | grep -o '"tag_name"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"\([^"]*\)"$/\1/')
@@ -167,7 +167,7 @@ jobs:
           RESPONSE=$(curl -sL --retry 2 --max-time 30 \
             https://api.github.com/repos/zeroclaw-labs/zeroclaw/releases/latest)
 
-          echo "Response length: ${#RESPONSE}"
+          echo "Response length: $(echo "$RESPONSE" | wc -c)"
 
           # Try to extract tag_name using grep/sed as fallback
           RELEASE_TAG=$(echo "$RESPONSE" | grep -o '"tag_name"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"\([^"]*\)"$/\1/')

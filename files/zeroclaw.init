@@ -10,7 +10,8 @@ PROG=/usr/bin/zeroclaw
 
 # Directory paths - use user directory by default (~/.zeroclaw)
 # Can be overridden via environment variables
-HOME_DIR="${HOME:-/root}"
+# Use /root explicitly as procd may set HOME=/ or HOME is empty
+HOME_DIR="/root"
 CONFIG_DIR="${ZEROCLAW_CONFIG_DIR:-$HOME_DIR/.zeroclaw}"
 DATA_DIR="${ZEROCLAW_DATA_DIR:-$HOME_DIR/.zeroclaw/data}"
 LOG_DIR="${ZEROCLAW_LOG_DIR:-$HOME_DIR/.zeroclaw/log}"

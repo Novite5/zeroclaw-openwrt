@@ -373,23 +373,23 @@ jobs:
         name: ZeroClaw IPK ${{ steps.upstream.outputs.upstream_version }}
         body: |
           Auto-built IPK package for ZeroClaw.
-          
+
           - ZeroClaw Version: ${{ steps.upstream.outputs.upstream_version }}
           - OpenWrt SDK Version: ${{ env.OPENWRT_VERSION }}
           - Target: ${{ env.OPENWRT_TARGET }}
           - Built from: ${{ github.sha }}
-          
+
           ## Installation
-          
+
           ```bash
           # Download the IPK file
           scp zeroclaw*.ipk root@your-router:/tmp/
-          
+
           # Install on OpenWrt
           opkg install /tmp/zeroclaw*.ipk
           ```
         files: openwrt/${{ env.IPK_FILE }}
-        tag_name: ipk-${{ steps.upstream.outputs.upstream_version }}-${{ github.run_number }}
+        tag_name: ipk-${{ steps.upstream.outputs.upstream_version }}
         make_latest: true
         generate_release_notes: true
       env:

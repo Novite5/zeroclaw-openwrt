@@ -50,7 +50,7 @@ start_service() {
     procd_set_param env ZEROCLAW_CONFIG_DIR="$CONFIG_DIR"
     procd_set_param env ZEROCLAW_DATA_DIR="$DATA_DIR"
     procd_set_param env ZEROCLAW_LOG_DIR="$LOG_DIR"
-    procd_set_param env HOME="/root"
+    procd_set_param env HOME="$HOME_DIR"
 
     # Logging
     procd_set_param stdout 1

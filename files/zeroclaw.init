@@ -33,19 +33,17 @@ ensure_dirs() {
 # Start the service
 start_service() {
     ensure_dirs
-    
+
     # Export environment variables
     export ZEROCLAW_CONFIG_DIR="$CONFIG_DIR"
     export ZEROCLAW_DATA_DIR="$DATA_DIR"
     export ZEROCLAW_LOG_DIR="$LOG_DIR"
-    export HOME="$DATA_DIR"
-    
+
     procd_open_instance
     procd_set_param command "$PROG" daemon
     procd_set_param env ZEROCLAW_CONFIG_DIR="$CONFIG_DIR"
     procd_set_param env ZEROCLAW_DATA_DIR="$DATA_DIR"
     procd_set_param env ZEROCLAW_LOG_DIR="$LOG_DIR"
-    procd_set_param env HOME="$DATA_DIR"
     
     # Logging
     procd_set_param stdout 1

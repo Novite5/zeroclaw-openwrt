@@ -40,12 +40,18 @@ start_service() {
     export ZEROCLAW_DATA_DIR="$DATA_DIR"
     export ZEROCLAW_LOG_DIR="$LOG_DIR"
 
+    # Debug: log the environment variables
+    logger "zeroclaw: ZEROCLAW_CONFIG_DIR=$ZEROCLAW_CONFIG_DIR"
+    logger "zeroclaw: ZEROCLAW_DATA_DIR=$ZEROCLAW_DATA_DIR"
+    logger "zeroclaw: ZEROCLAW_LOG_DIR=$ZEROCLAW_LOG_DIR"
+
     procd_open_instance
     procd_set_param command "$PROG" daemon
     procd_set_param env ZEROCLAW_CONFIG_DIR="$CONFIG_DIR"
     procd_set_param env ZEROCLAW_DATA_DIR="$DATA_DIR"
     procd_set_param env ZEROCLAW_LOG_DIR="$LOG_DIR"
-    
+    procd_set_param env HOME="/root"
+
     # Logging
     procd_set_param stdout 1
     procd_set_param stderr 1

@@ -7,24 +7,27 @@ STOP=10
 
 USE_PROCD=1
 PROG=/usr/bin/zeroclaw
-CONFIG_DIR=/etc/zeroclaw
-DATA_DIR=/var/lib/zeroclaw
-LOG_DIR=/var/log/zeroclaw
+
+# Directory paths - use user directory by default (~/.zeroclaw)
+# Can be overridden via environment variables
+HOME_DIR="${HOME:-/root}"
+CONFIG_DIR="${ZEROCLAW_CONFIG_DIR:-$HOME_DIR/.zeroclaw}"
+DATA_DIR="${ZEROCLAW_DATA_DIR:-$HOME_DIR/.zeroclaw/data}"
+LOG_DIR="${ZEROCLAW_LOG_DIR:-$HOME_DIR/.zeroclaw/log}"
 
 # Ensure directories exist
 ensure_dirs() {
     mkdir -p "$CONFIG_DIR"
     mkdir -p "$DATA_DIR"
     mkdir -p "$LOG_DIR"
-    
+
     # Copy default config if it doesn't exist
     if [ ! -f "$CONFIG_DIR/config.toml" ]; then
         cp /etc/zeroclaw/config.toml "$CONFIG_DIR/config.toml"
     fi
-    
-    # Set proper permissions
-    chown -R nobody:nogroup "$DATA_DIR" "$LOG_DIR" 2>/dev/null || true
-    chmod 755 "$DATA_DIR" "$LOG_DIR"
+
+    # Set proper permissions (service runs as root)
+    chmod 755 "$CONFIG_DIR" "$DATA_DIR" "$LOG_DIR"
 }
 
 # Start the service

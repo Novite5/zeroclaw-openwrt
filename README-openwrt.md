@@ -105,9 +105,11 @@ ZeroClaw installs as a service on OpenWrt:
 
 ## Configuration Files
 
-- **Main config**: `/etc/zeroclaw/config.toml`
-- **Data directory**: `/var/lib/zeroclaw/`
-- **Log directory**: `/var/log/zeroclaw/`
+- **Main config**: `~/.zeroclaw/config.toml` (or `$ZEROCLAW_CONFIG_DIR/config.toml`)
+- **Data directory**: `~/.zeroclaw/data/` (or `$ZEROCLAW_DATA_DIR/`)
+- **Log directory**: `~/.zeroclaw/log/` (or `$ZEROCLAW_LOG_DIR/`)
+
+**Note:** The default config template is installed at `/etc/zeroclaw/config.toml` and copied to the user directory on first start. Paths can be overridden via environment variables.
 
 ## Building Locally
 

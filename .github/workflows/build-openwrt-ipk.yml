@@ -152,10 +152,10 @@ jobs:
 
           echo "Release check HTTP status: $HTTP_STATUS"
 
-          if [ "$HTTP_STATUS" == "404" ]; then
+          if [ "$HTTP_STATUS" = "404" ]; then
             echo "Release $RELEASE_TAG doesn't exist in our repo, will create"
             SHOULD_CREATE="true"
-          elif [ "$HTTP_STATUS" == "200" ]; then
+          elif [ "$HTTP_STATUS" = "200" ]; then
             echo "Release $RELEASE_TAG already exists"
           else
             echo "Unexpected HTTP status: $HTTP_STATUS"
@@ -188,10 +188,10 @@ jobs:
 
           echo "Release check HTTP status: $HTTP_STATUS"
 
-          if [ "$HTTP_STATUS" == "404" ]; then
+          if [ "$HTTP_STATUS" = "404" ]; then
             echo "Release $RELEASE_TAG doesn't exist in our repo, will create"
             SHOULD_CREATE="true"
-          elif [ "$HTTP_STATUS" == "200" ]; then
+          elif [ "$HTTP_STATUS" = "200" ]; then
             echo "Release $RELEASE_TAG already exists"
           else
             echo "Unexpected HTTP status: $HTTP_STATUS"
